@@ -8,10 +8,8 @@ import {
   UseGuards,
   Request,
   ForbiddenException,
-  ApiTags,
-  ApiOperation,
-  ApiBearerAuth,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ModerationService } from './moderation.service';
 import { JwtGuard } from '../auth/jwt.guard';
 

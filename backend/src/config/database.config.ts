@@ -27,4 +27,5 @@ export const databaseConfig: TypeOrmModuleOptions = {
   logging: process.env.DB_LOGGING === 'true',
   maxQueryExecutionTime: 5000,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  retryAttempts: 0,
 };

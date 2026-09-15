@@ -11,8 +11,8 @@ import { Listing } from '../listings/listing.entity';
 import { User } from '../users/user.entity';
 
 @Entity('moderation_queue')
-@Index(['status'])
-@Index(['flaggedAt'], { synchronize: false })
+@Index('idx_moderation_status', ['status'])
+@Index('idx_moderation_flagged_at', ['flaggedAt'])
 export class ModerationQueue {
   @PrimaryGeneratedColumn('increment')
   id: number;

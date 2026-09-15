@@ -7,7 +7,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: suqly_dev
-      POSTGRES_INITDB_ARGS: '-c max_connections=200'
     ports:
       - '5432:5432'
     volumes:

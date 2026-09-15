@@ -5,10 +5,8 @@ import {
   Query,
   UseGuards,
   Request,
-  ApiTags,
-  ApiOperation,
-  ApiBearerAuth,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { MessagesService } from './messages.service';
 import { JwtGuard } from '../auth/jwt.guard';
 

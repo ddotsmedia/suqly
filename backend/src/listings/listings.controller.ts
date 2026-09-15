@@ -9,11 +9,9 @@ import {
   Query,
   UseGuards,
   Request,
-  ApiTags,
-  ApiOperation,
-  ApiBearerAuth,
   BadRequestException,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ListingsService } from './listings.service';
 import { JwtGuard } from '../auth/jwt.guard';
 

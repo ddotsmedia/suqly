@@ -6,8 +6,9 @@ import {
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  WebSocketServer,
 } from '@nestjs/websockets';
-import { Socket } from 'socket.io';
+import { Socket, Server } from 'socket.io';
 import { MessagesService } from './messages.service';
 
 interface AuthenticatedSocket extends Socket {
@@ -23,6 +24,9 @@ interface AuthenticatedSocket extends Socket {
 export class MessagesGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
+  @WebSocketServer()
+  server: Server;
+
   private users = new Map<number, string>();
 
   constructor(private messagesService: MessagesService) {}
@@ -75,7 +79,7 @@ export class MessagesGateway
 
     const recipientSocketId = this.users.get(data.recipientId);
     if (recipientSocketId) {
-      client.server.to(recipientSocketId).emit('message', {
+      this.server.to(recipientSocketId).emit('message', {
         id: message.id,
         senderId: message.senderId,
         recipientId: message.recipientId,
@@ -98,7 +102,7 @@ export class MessagesGateway
   ) {
     const recipientSocketId = this.users.get(data.recipientId);
     if (recipientSocketId) {
-      client.server.to(recipientSocketId).emit('user_typing', {
+      this.server.to(recipientSocketId).emit('user_typing', {
         userId: client.userId,
         isTyping: data.isTyping,
       });

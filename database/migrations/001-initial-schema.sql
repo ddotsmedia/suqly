@@ -1,5 +1,5 @@
 -- Enable extensions
-CREATE EXTENSION IF NOT EXISTS postgis;
+-- CREATE EXTENSION IF NOT EXISTS postgis;  -- Will use standard PostgreSQL for S01
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Enums
@@ -57,7 +57,7 @@ CREATE TABLE listings (
   -- Location
   emirate emirate NOT NULL,
   community VARCHAR(100),
-  precise_location GEOMETRY(POINT, 4326),
+  -- precise_location GEOMETRY(POINT, 4326),  -- Requires PostGIS
   public_location VARCHAR(255),
 
   -- Pricing
@@ -84,7 +84,7 @@ CREATE INDEX idx_user_id ON listings(user_id);
 CREATE INDEX idx_category_emirate ON listings(category, emirate);
 CREATE INDEX idx_status ON listings(status);
 CREATE INDEX idx_published_at ON listings(published_at DESC);
-CREATE SPATIAL INDEX idx_location ON listings USING GIST(precise_location);
+-- CREATE SPATIAL INDEX idx_location ON listings USING GIST(precise_location);  -- Requires PostGIS
 
 -- Listing images
 CREATE TABLE listing_images (

@@ -53,7 +53,7 @@ export class MessagesService {
     page = 1,
     limit = 50,
   ): Promise<any> {
-    const [messages, total] = await this.messagesRepository.find({
+    const messages = await this.messagesRepository.find({
       where: [
         { senderId, recipientId },
         { senderId: recipientId, recipientId: senderId },
@@ -61,6 +61,8 @@ export class MessagesService {
       relations: ['sender', 'recipient', 'listing'],
       order: { createdAt: 'DESC' },
     });
+
+    const total = messages.length;
 
     return {
       data: messages.slice((page - 1) * limit, page * limit).reverse(),

@@ -11,8 +11,8 @@ import { Listing } from '../listings/listing.entity';
 import { User } from '../users/user.entity';
 
 @Entity('messages')
-@Index(['listingId', 'createdAt'], { synchronize: false })
-@Index(['senderId', 'recipientId'])
+@Index('idx_messages_listing', ['listingId', 'createdAt'])
+@Index('idx_messages_sender_recipient', ['senderId', 'recipientId'])
 export class Message {
   @PrimaryGeneratedColumn('increment')
   id: number;

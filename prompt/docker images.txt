@@ -1,0 +1,185 @@
+docker images
+Docker version 29.7.2, build a7dcaa6
+CONTAINER ID   IMAGE                             COMMAND                  CREATED       STATUS                                     PORTS                                         NAMES
+831c0e80413c   aitools-web                       "docker-entrypoint.s…"   2 days ago    Up 19 hours                                0.0.0.0:3020->3020/tcp                        aitools-web-1
+06b3e3caede7   aitools-api                       "docker-entrypoint.s…"   2 days ago    Up 19 hours (healthy)                      127.0.0.1:4020->4020/tcp                      aitools-api-1
+f31899bb700c   aitools-ai                        "uvicorn app.main:ap…"   2 days ago    Up 19 hours                                127.0.0.1:8020->8020/tcp                      aitools-ai-1
+74137e200fdc   redis:7-alpine                    "docker-entrypoint.s…"   3 days ago    Up 19 hours (healthy)                      127.0.0.1:6383->6379/tcp                      aitools-redis-1
+0819519277cf   pgvector/pgvector:pg16            "docker-entrypoint.s…"   3 days ago    Up 19 hours (healthy)                      127.0.0.1:5442->5432/tcp                      aitools-postgres-1
+23345c2530f8   getmeili/meilisearch:v1.10        "tini -- /bin/sh -c …"   3 days ago    Up 19 hours                                127.0.0.1:7720->7700/tcp                      aitools-meilisearch-1
+81da3b14544a   pgvector/pgvector:pg16            "docker-entrypoint.s…"   6 days ago    Up 19 hours                                127.0.0.1:5435->5432/tcp                      wa-crm-postgres
+22c090b3d5f0   mysql:5.7                         "docker-entrypoint.s…"   6 days ago    Up 19 hours                                33060/tcp, 127.0.0.1:3310->3306/tcp           cbw_mysql
+4b7845e11f8d   ddotsshop:local                   "docker-entrypoint.s…"   6 days ago    Up 19 hours                                3000/tcp                                      ddotshop-workers-1
+10f7cd1ed164   ddotsshop:local                   "docker-entrypoint.s…"   6 days ago    Restarting (1) 8 seconds ago                                                             ddotshop-app-1
+70565585c731   redis:7-alpine                    "docker-entrypoint.s…"   6 days ago    Up 19 hours (healthy)                      6379/tcp                                      ddotshop-redis-1
+1c353854993c   b92ebb24ea79                      "docker-entrypoint.s…"   8 days ago    Up 19 hours (healthy)                      127.0.0.1:3015->3000/tcp                      vaidhyasala-web
+cd330ed8c7bd   postgres:16-alpine                "docker-entrypoint.s…"   8 days ago    Up 19 hours (healthy)                      127.0.0.1:5434->5432/tcp                      vaidhyasala-postgres
+cf20af598bbd   redis:7-alpine                    "docker-entrypoint.s…"   8 days ago    Up 19 hours (healthy)                      127.0.0.1:6382->6379/tcp                      vaidhyasala-redis
+bf148cf02bda   redis:7-alpine                    "docker-entrypoint.s…"   2 weeks ago   Up 19 hours                                0.0.0.0:6381->6379/tcp, [::]:6381->6379/tcp   uaemalayalees-redis
+380557f76dbf   postgres:15-alpine                "docker-entrypoint.s…"   2 weeks ago   Up 19 hours (healthy)                      127.0.0.1:5440->5432/tcp                      khp-khp-postgres-1
+2c2474db9b9b   redis:7-alpine                    "docker-entrypoint.s…"   2 weeks ago   Up 19 hours (healthy)                      127.0.0.1:6380->6379/tcp                      khp-khp-redis-1
+2d4e83601344   medicore2-core-api                "docker-entrypoint.s…"   2 weeks ago   Up Less than a second (health: starting)   127.0.0.1:8110->4000/tcp                      medicore2-core-api-1
+3287c7e4dab2   hapiproject/hapi:latest           "java --class-path /…"   2 weeks ago   Up 19 hours                                127.0.0.1:8180->8080/tcp                      medicore2-hapi-fhir-1
+12ad4b50a325   medicore2-ai-service              "uvicorn app.main:ap…"   2 weeks ago   Up 19 hours (healthy)                      127.0.0.1:8120->8000/tcp                      medicore2-ai-service-1
+b79717c5af1d   confluentinc/cp-kafka:7.6.0       "/etc/confluent/dock…"   2 weeks ago   Up 19 hours (healthy)                      9092/tcp                                      medicore2-kafka-1
+21ecdeac9e29   redis:8-alpine                    "docker-entrypoint.s…"   2 weeks ago   Up 19 hours (healthy)                      6379/tcp                                      medicore2-redis-1
+a751f34be60b   pgvector/pgvector:pg17            "docker-entrypoint.s…"   2 weeks ago   Up 19 hours (healthy)                      5432/tcp                                      medicore2-postgres-1
+faf8f2f7ef7d   confluentinc/cp-zookeeper:7.6.0   "/etc/confluent/dock…"   2 weeks ago   Up 19 hours (healthy)                      2181/tcp, 2888/tcp, 3888/tcp                  medicore2-zookeeper-1
+b2e013643ef1   minio/minio:latest                "/usr/bin/docker-ent…"   2 weeks ago   Up 19 hours (healthy)                      9000/tcp                                      medicore2-minio-1
+cf8bda3e0b3e   khp-khp-admin                     "docker-entrypoint.s…"   2 weeks ago   Up 19 hours                                127.0.0.1:8081->3000/tcp                      khp-khp-admin-1
+ec80bedc450c   khp-khp-portal                    "docker-entrypoint.s…"   2 weeks ago   Up 19 hours                                127.0.0.1:3002->3000/tcp                      khp-khp-portal-1
+1f07afaf414c   lsn-frontend                      "docker-entrypoint.s…"   3 weeks ago   Up 19 hours (healthy)                      127.0.0.1:3083->3000/tcp                      lsn-frontend
+212d122a9e39   lsn-backend                       "docker-entrypoint.s…"   3 weeks ago   Up 19 hours (healthy)                      127.0.0.1:3011->3011/tcp                      lsn-backend
+ac24e21088c2   lsn-grafana:local                 "/run.sh"                3 weeks ago   Up 19 hours (healthy)                      127.0.0.1:3130->3000/tcp                      lsn-grafana
+3a67f9d7eac4   redis:7-alpine                    "docker-entrypoint.s…"   3 weeks ago   Up 19 hours (healthy)                      6379/tcp                                      lsn-redis
+9937c18d2b75   postgres:16-alpine                "docker-entrypoint.s…"   3 weeks ago   Up 19 hours (healthy)                      127.0.0.1:5437->5432/tcp                      lsn-postgres
+90ae1676d92c   synergy-web:latest                "docker-entrypoint.s…"   5 weeks ago   Up 19 hours (healthy)                      127.0.0.1:3013->3000/tcp                      synergy-web-1
+06b07fec6c4c   synergy-admin:latest              "docker-entrypoint.s…"   5 weeks ago   Up 19 hours (healthy)                      127.0.0.1:3014->3000/tcp                      synergy-admin-1
+5b144ded1e3e   postgres:16-alpine                "docker-entrypoint.s…"   5 weeks ago   Up 19 hours (healthy)                      5432/tcp                                      synergy-postgres-1
+CONTAINER ID   IMAGE                             COMMAND                  CREATED       STATUS                                     PORTS                                         NAMES
+831c0e80413c   aitools-web                       "docker-entrypoint.s…"   2 days ago    Up 19 hours                                0.0.0.0:3020->3020/tcp                        aitools-web-1
+06b3e3caede7   aitools-api                       "docker-entrypoint.s…"   2 days ago    Up 19 hours (healthy)                      127.0.0.1:4020->4020/tcp                      aitools-api-1
+f31899bb700c   aitools-ai                        "uvicorn app.main:ap…"   2 days ago    Up 19 hours                                127.0.0.1:8020->8020/tcp                      aitools-ai-1
+74137e200fdc   redis:7-alpine                    "docker-entrypoint.s…"   3 days ago    Up 19 hours (healthy)                      127.0.0.1:6383->6379/tcp                      aitools-redis-1
+0819519277cf   pgvector/pgvector:pg16            "docker-entrypoint.s…"   3 days ago    Up 19 hours (healthy)                      127.0.0.1:5442->5432/tcp                      aitools-postgres-1
+23345c2530f8   getmeili/meilisearch:v1.10        "tini -- /bin/sh -c …"   3 days ago    Up 19 hours                                127.0.0.1:7720->7700/tcp                      aitools-meilisearch-1
+e9c6b35b6928   redis:7-alpine                    "docker-entrypoint.s…"   6 days ago    Exited (0) 3 days ago                                                                    wa-crm-redis
+81da3b14544a   pgvector/pgvector:pg16            "docker-entrypoint.s…"   6 days ago    Up 19 hours                                127.0.0.1:5435->5432/tcp                      wa-crm-postgres
+45567cd2ee06   pgvector/pgvector:pg16            "docker-entrypoint.s…"   6 days ago    Created                                                                                  ai-tools-hub-postgres-1
+addee11005cf   redis:7-alpine                    "docker-entrypoint.s…"   6 days ago    Created                                                                                  ai-tools-hub-redis-1
+64d509564cb1   getmeili/meilisearch:v1.10        "tini -- /bin/sh -c …"   6 days ago    Created                                                                                  ai-tools-hub-meilisearch-1
+889d75cda665   php:7.4-apache                    "docker-php-entrypoi…"   6 days ago    Created                                                                                  cbw_php
+22c090b3d5f0   mysql:5.7                         "docker-entrypoint.s…"   6 days ago    Up 19 hours                                33060/tcp, 127.0.0.1:3310->3306/tcp           cbw_mysql
+4b7845e11f8d   ddotsshop:local                   "docker-entrypoint.s…"   6 days ago    Up 19 hours                                3000/tcp                                      ddotshop-workers-1
+10f7cd1ed164   ddotsshop:local                   "docker-entrypoint.s…"   6 days ago    Restarting (1) 9 seconds ago                                                             ddotshop-app-1
+a839de91bc14   postgres:16-alpine                "docker-entrypoint.s…"   6 days ago    Created                                                                                  ddotshop-postgres-1
+70565585c731   redis:7-alpine                    "docker-entrypoint.s…"   6 days ago    Up 19 hours (healthy)                      6379/tcp                                      ddotshop-redis-1
+1c353854993c   b92ebb24ea79                      "docker-entrypoint.s…"   8 days ago    Up 19 hours (healthy)                      127.0.0.1:3015->3000/tcp                      vaidhyasala-web
+cd330ed8c7bd   postgres:16-alpine                "docker-entrypoint.s…"   8 days ago    Up 19 hours (healthy)                      127.0.0.1:5434->5432/tcp                      vaidhyasala-postgres
+cf20af598bbd   redis:7-alpine                    "docker-entrypoint.s…"   8 days ago    Up 19 hours (healthy)                      127.0.0.1:6382->6379/tcp                      vaidhyasala-redis
+bf148cf02bda   redis:7-alpine                    "docker-entrypoint.s…"   2 weeks ago   Up 19 hours                                0.0.0.0:6381->6379/tcp, [::]:6381->6379/tcp   uaemalayalees-redis
+765cc95b0fab   postgres:16                       "docker-entrypoint.s…"   2 weeks ago   Exited (255) 20 hours ago                  0.0.0.0:5433->5432/tcp, [::]:5433->5432/tcp   uaemalayalees-postgres-1
+380557f76dbf   postgres:15-alpine                "docker-entrypoint.s…"   2 weeks ago   Up 19 hours (healthy)                      127.0.0.1:5440->5432/tcp                      khp-khp-postgres-1
+2c2474db9b9b   redis:7-alpine                    "docker-entrypoint.s…"   2 weeks ago   Up 19 hours (healthy)                      127.0.0.1:6380->6379/tcp                      khp-khp-redis-1
+2d4e83601344   medicore2-core-api                "docker-entrypoint.s…"   2 weeks ago   Up Less than a second (health: starting)   127.0.0.1:8110->4000/tcp                      medicore2-core-api-1
+3287c7e4dab2   hapiproject/hapi:latest           "java --class-path /…"   2 weeks ago   Up 19 hours                                127.0.0.1:8180->8080/tcp                      medicore2-hapi-fhir-1
+12ad4b50a325   medicore2-ai-service              "uvicorn app.main:ap…"   2 weeks ago   Up 19 hours (healthy)                      127.0.0.1:8120->8000/tcp                      medicore2-ai-service-1
+b79717c5af1d   confluentinc/cp-kafka:7.6.0       "/etc/confluent/dock…"   2 weeks ago   Up 19 hours (healthy)                      9092/tcp                                      medicore2-kafka-1
+21ecdeac9e29   redis:8-alpine                    "docker-entrypoint.s…"   2 weeks ago   Up 19 hours (healthy)                      6379/tcp                                      medicore2-redis-1
+a751f34be60b   pgvector/pgvector:pg17            "docker-entrypoint.s…"   2 weeks ago   Up 19 hours (healthy)                      5432/tcp                                      medicore2-postgres-1
+faf8f2f7ef7d   confluentinc/cp-zookeeper:7.6.0   "/etc/confluent/dock…"   2 weeks ago   Up 19 hours (healthy)                      2181/tcp, 2888/tcp, 3888/tcp                  medicore2-zookeeper-1
+b2e013643ef1   minio/minio:latest                "/usr/bin/docker-ent…"   2 weeks ago   Up 19 hours (healthy)                      9000/tcp                                      medicore2-minio-1
+cf8bda3e0b3e   khp-khp-admin                     "docker-entrypoint.s…"   2 weeks ago   Up 19 hours                                127.0.0.1:8081->3000/tcp                      khp-khp-admin-1
+ec80bedc450c   khp-khp-portal                    "docker-entrypoint.s…"   2 weeks ago   Up 19 hours                                127.0.0.1:3002->3000/tcp                      khp-khp-portal-1
+1f07afaf414c   lsn-frontend                      "docker-entrypoint.s…"   3 weeks ago   Up 19 hours (healthy)                      127.0.0.1:3083->3000/tcp                      lsn-frontend
+212d122a9e39   lsn-backend                       "docker-entrypoint.s…"   3 weeks ago   Up 19 hours (healthy)                      127.0.0.1:3011->3011/tcp                      lsn-backend
+ac24e21088c2   lsn-grafana:local                 "/run.sh"                3 weeks ago   Up 19 hours (healthy)                      127.0.0.1:3130->3000/tcp                      lsn-grafana
+3a67f9d7eac4   redis:7-alpine                    "docker-entrypoint.s…"   3 weeks ago   Up 19 hours (healthy)                      6379/tcp                                      lsn-redis
+9937c18d2b75   postgres:16-alpine                "docker-entrypoint.s…"   3 weeks ago   Up 19 hours (healthy)                      127.0.0.1:5437->5432/tcp                      lsn-postgres
+90ae1676d92c   synergy-web:latest                "docker-entrypoint.s…"   5 weeks ago   Up 19 hours (healthy)                      127.0.0.1:3013->3000/tcp                      synergy-web-1
+06b07fec6c4c   synergy-admin:latest              "docker-entrypoint.s…"   5 weeks ago   Up 19 hours (healthy)                      127.0.0.1:3014->3000/tcp                      synergy-admin-1
+5b144ded1e3e   postgres:16-alpine                "docker-entrypoint.s…"   5 weeks ago   Up 19 hours (healthy)                      5432/tcp                                      synergy-postgres-1
+tcp        0      0 127.0.0.1:8020          0.0.0.0:*               LISTEN      17247/docker-proxy
+tcp        0      0 127.0.0.1:8081          0.0.0.0:*               LISTEN      18002/docker-proxy
+tcp        0      0 127.0.0.1:8110          0.0.0.0:*               LISTEN      3676530/docker-prox
+tcp        0      0 127.0.0.1:8120          0.0.0.0:*               LISTEN      19187/docker-proxy
+tcp        0      0 127.0.0.1:8180          0.0.0.0:*               LISTEN      18311/docker-proxy
+tcp        0      0 127.0.0.1:7720          0.0.0.0:*               LISTEN      18902/docker-proxy
+tcp        0      0 127.0.0.1:6432          0.0.0.0:*               LISTEN      808/pgbouncer
+tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      604/systemd-resolve
+tcp        0      0 0.0.0.0:3020            0.0.0.0:*               LISTEN      18203/docker-proxy
+tcp        0      0 127.0.0.1:6380          0.0.0.0:*               LISTEN      17409/docker-proxy
+tcp        0      0 127.0.0.1:6383          0.0.0.0:*               LISTEN      18586/docker-proxy
+tcp        0      0 127.0.0.1:6382          0.0.0.0:*               LISTEN      17779/docker-proxy
+tcp        0      0 127.0.0.1:6390          0.0.0.0:*               LISTEN      819/redis-server 12
+tcp        0      0 127.0.0.1:5432          0.0.0.0:*               LISTEN      1006/postgres
+tcp        0      0 127.0.0.1:5435          0.0.0.0:*               LISTEN      14841/docker-proxy
+tcp        0      0 127.0.0.1:5434          0.0.0.0:*               LISTEN      16625/docker-proxy
+tcp        0      0 127.0.0.1:5437          0.0.0.0:*               LISTEN      19011/docker-proxy
+tcp        0      0 127.0.0.1:5436          0.0.0.0:*               LISTEN      1015/postgres
+tcp        0      0 127.0.0.1:5438          0.0.0.0:*               LISTEN      1007/postgres
+tcp        0      0 127.0.0.1:5440          0.0.0.0:*               LISTEN      18446/docker-proxy
+tcp        0      0 127.0.0.1:5442          0.0.0.0:*               LISTEN      16247/docker-proxy
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      1/init
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      1094/nginx: master
+tcp        0      0 0.0.0.0:443             0.0.0.0:*               LISTEN      1094/nginx: master
+tcp        0      0 127.0.0.54:53           0.0.0.0:*               LISTEN      604/systemd-resolve
+tcp        0      0 127.0.0.1:4020          0.0.0.0:*               LISTEN      16746/docker-proxy
+tcp        0      0 127.0.0.1:3080          0.0.0.0:*               LISTEN      1362/next-server (v
+tcp        0      0 127.0.0.1:3083          0.0.0.0:*               LISTEN      17656/docker-proxy
+tcp        0      0 127.0.0.1:3100          0.0.0.0:*               LISTEN      1635607/next-server
+tcp        0      0 127.0.0.1:3107          0.0.0.0:*               LISTEN      1167/PM2 v7.0.4: Go
+tcp        0      0 127.0.0.1:3130          0.0.0.0:*               LISTEN      17104/docker-proxy
+tcp        0      0 127.0.0.1:3120          0.0.0.0:*               LISTEN      1259110/next-server
+tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN      999/mariadbd
+tcp        0      0 127.0.0.1:3310          0.0.0.0:*               LISTEN      16998/docker-proxy
+tcp        0      0 0.0.0.0:6381            0.0.0.0:*               LISTEN      15850/docker-proxy
+tcp        0      0 127.0.0.1:3002          0.0.0.0:*               LISTEN      16524/docker-proxy
+tcp        0      0 127.0.0.1:3011          0.0.0.0:*               LISTEN      18113/docker-proxy
+tcp        0      0 127.0.0.1:3013          0.0.0.0:*               LISTEN      19424/docker-proxy
+tcp        0      0 127.0.0.1:3015          0.0.0.0:*               LISTEN      18775/docker-proxy
+tcp        0      0 127.0.0.1:3014          0.0.0.0:*               LISTEN      17513/docker-proxy
+tcp        0      0 0.0.0.0:4100            0.0.0.0:*               LISTEN      1635606/node /opt/a
+tcp        0      0 0.0.0.0:4101            0.0.0.0:*               LISTEN      1635606/node /opt/a
+tcp6       0      0 :::3200                 :::*                    LISTEN      1587748/next-server
+tcp6       0      0 :::3004                 :::*                    LISTEN      1458/next-server (v
+tcp6       0      0 :::3000                 :::*                    LISTEN      1428/next-server (v
+tcp6       0      0 :::3060                 :::*                    LISTEN      1338/next-server (v
+tcp6       0      0 :::22                   :::*                    LISTEN      1/init
+tcp6       0      0 :::80                   :::*                    LISTEN      1094/nginx: master
+tcp6       0      0 :::443                  :::*                    LISTEN      1094/nginx: master
+tcp6       0      0 :::6381                 :::*                    LISTEN      15882/docker-proxy
+tcp6       0      0 ::1:6390                :::*                    LISTEN      819/redis-server 12
+tcp6       0      0 ::1:5438                :::*                    LISTEN      1007/postgres
+tcp6       0      0 ::1:5436                :::*                    LISTEN      1015/postgres
+tcp6       0      0 ::1:5432                :::*                    LISTEN      1006/postgres
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 2  │ adm-web            │ fork     │ 0    │ stopped   │ 0%       │ 0b       │
+│ 12 │ adm-web            │ fork     │ 0    │ online    │ 0%       │ 0b       │
+│ 14 │ ayurconnect-api    │ fork     │ 0    │ online    │ 0%       │ 0b       │
+│ 15 │ ayurconnect-web    │ fork     │ 0    │ online    │ 0%       │ 0b       │
+│ 13 │ ddots-web          │ fork     │ 0    │ online    │ 0%       │ 0b       │
+│ 8  │ ddots-worker       │ fork     │ 0    │ online    │ 0%       │ 0b       │
+│ 4  │ ddotsjobs-web      │ cluster  │ 0    │ online    │ 0%       │ 0b       │
+│ 6  │ ddotsjobs-web      │ cluster  │ 0    │ online    │ 0%       │ 0b       │
+│ 5  │ ddotsjobs-worker   │ fork     │ 0    │ online    │ 0%       │ 0b       │
+│ 9  │ ddotsrealty        │ fork     │ 0    │ online    │ 0%       │ 0b       │
+│ 10 │ ddotsrealty-worker │ fork     │ 0    │ online    │ 0%       │ 0b       │
+│ 11 │ kayakalpam         │ fork     │ 0    │ online    │ 0%       │ 0b       │
+│ 0  │ wa-crm-web         │ fork     │ 0    │ online    │ 0%       │ 0b       │
+│ 1  │ wa-crm-worker      │ fork     │ 0    │ online    │ 0%       │ 0b       │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+host metrics | cpu: 9.1% | ram usage: 43% | lo: ⇓ 0.014mb/s ⇑ 0.014mb/s | eth0: ⇓ 0.002mb/s ⇑ 0.026mb/s | br-44f57c6f8820: ⇓ 0mb/s ⇑ 0.001mb/s | vethf5b48ba: ⇓ 0.001mb/s ⇑ 0mb/s | veth6df2fb9: ⇓ 0mb/s ⇑ 0.001mb/s | veth178cd84: ⇓ 0mb/s ⇑ 0.001mb/s
+                                                                                                    i Info →   U  In Use
+IMAGE                             ID             DISK USAGE   CONTENT SIZE   EXTRA
+aitools-ai:latest                 ab1eb41ba25b        384MB         89.3MB    U
+aitools-api:latest                724f03a37917        1.3GB          281MB    U
+aitools-web:latest                92296bfe8725        312MB         72.3MB    U
+confluentinc/cp-kafka:7.6.0       24cdd3a7fa89       1.31GB          453MB    U
+confluentinc/cp-zookeeper:7.6.0   9babd1c0beaf       1.31GB          453MB    U
+ddotsshop:local                   225b77d379df       2.92GB          717MB    U
+getmeili/meilisearch:v1.10        9d1b9b02fe6c        232MB         93.6MB    U
+hapiproject/hapi:latest           55213612779a       1.04GB          436MB    U
+khp-khp-admin:latest              a4142ff2466f        301MB         72.5MB    U
+khp-khp-portal:latest             d1e3ed3bfa92        301MB         72.6MB    U
+lsn-backend:latest                ad737fca677e        332MB         63.7MB    U
+lsn-frontend:latest               0f5bff26ac9d        298MB         72.4MB    U
+lsn-grafana:local                 1b7da247b735        647MB          133MB    U
+medicore2-ai-service:latest       83fc62477fdd       4.39GB          991MB    U
+medicore2-core-api:latest         1f1f6a8dfe78        783MB          175MB    U
+minio/minio:latest                14cea493d9a3        241MB         62.2MB    U
+mysql:5.7                         4bc6bc963e6d        700MB          149MB    U
+pgvector/pgvector:pg16            ccc6e83d6e35        621MB          156MB    U
+pgvector/pgvector:pg17            7ae6051efd0e        627MB          158MB    U
+php:7.4-apache                    c9d7e608f738        647MB          163MB    U
+postgres:15-alpine                3d0f7584ed7d        417MB          116MB    U
+postgres:16                       f1c3376c26f2        642MB          166MB    U
+postgres:16-alpine                57c72fd2a128        420MB          117MB    U
+redis:7-alpine                    e7723ff73d96       57.8MB         16.8MB    U
+redis:8-alpine                    becdda6c7f4b        160MB         39.5MB    U
+synergy-admin:latest              53ab66116d47        313MB         75.7MB    U
+synergy-web:latest                8da50c9a2e24        310MB           75MB    U
+vaidhyasala-web:latest            f28b09c7b8af       2.62GB          423MB
+root@srv988590:~#

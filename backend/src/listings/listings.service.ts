@@ -27,15 +27,16 @@ export class ListingsService {
     const user = await this.usersService.findById(userId);
 
     // Generate slug
-    let listing = this.listingsRepository.create({
+    const listingData = this.listingsRepository.create({
       ...createData,
       userId,
       status: 'draft',
       slug: this.generateSlug(createData.title),
-    });
+    }) as unknown as Listing;
 
-    listing = await this.listingsRepository.save(listing);
-    return this.findById(listing.id);
+    const saved = await this.listingsRepository.save(listingData);
+    const savedListing = saved as unknown as Listing;
+    return this.findById(savedListing.id);
   }
 
   async findAll(filters: any, page = 1, limit = 20): Promise<any> {

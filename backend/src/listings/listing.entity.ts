@@ -14,10 +14,10 @@ import { ListingImage } from './listing-image.entity';
 import { Message } from '../messages/message.entity';
 
 @Entity('listings')
-@Index(['userId'])
-@Index(['category', 'emirate'])
-@Index(['status'])
-@Index(['publishedAt'], { synchronize: false })
+@Index('idx_user_id', ['userId'])
+@Index('idx_category_emirate', ['category', 'emirate'])
+@Index('idx_status', ['status'])
+@Index('idx_published_at', ['publishedAt'])
 export class Listing {
   @PrimaryGeneratedColumn('increment')
   id: number;
