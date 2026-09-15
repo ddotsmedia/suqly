@@ -1,13 +1,17 @@
 import { Controller, Get, Put, Param, Body, Request, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
+import { SellerStatsService } from './seller-stats.service';
 import { User } from './user.entity';
 import { JwtGuard } from '../auth/jwt.guard';
 
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private sellerStatsService: SellerStatsService,
+  ) {}
 
   @Get(':id')
   @ApiOperation({ summary: 'Get user profile (public)' })
@@ -23,7 +27,7 @@ export class UsersController {
   @Get(':id/stats')
   @ApiOperation({ summary: 'Get seller stats' })
   async getSellerStats(@Param('id') id: string) {
-    const stats = await this.usersService.getSellerStats(parseInt(id));
+    const stats = await this.sellerStatsService.getSellerStats(parseInt(id));
     return {
       success: true,
       data: stats,

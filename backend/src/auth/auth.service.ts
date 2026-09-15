@@ -3,9 +3,9 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
+import { SmsService } from './sms.service';
 import * as crypto from 'crypto';
 
-// Simple in-memory OTP store for S01 (Redis in P1)
 const otpStore = new Map<string, { code: string; expires: number }>();
 
 @Injectable()
@@ -14,19 +14,18 @@ export class AuthService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private jwtService: JwtService,
+    private smsService: SmsService,
   ) {}
 
   async sendOTP(phone: string): Promise<{ success: boolean; message: string }> {
-    // Generate 6-digit OTP
     const otp = crypto.randomInt(100000, 999999).toString();
 
-    // Store in-memory with 10-minute expiry
     otpStore.set(phone, {
       code: otp,
       expires: Date.now() + 600000,
     });
 
-    console.log(`📱 OTP for ${phone}: ${otp} (dev mode - not sent via Twilio)`);
+    await this.smsService.sendOtp(phone, otp);
 
     return { success: true, message: `OTP sent to ${phone}` };
   }

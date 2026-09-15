@@ -8,6 +8,8 @@ import { Repository } from 'typeorm';
 import { Listing } from './listing.entity';
 import { ListingImage } from './listing-image.entity';
 import { UsersService } from '../users/users.service';
+import { ImageCompressionService } from './image-compression.service';
+import { ModerationService } from '../moderation/moderation.service';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -18,6 +20,8 @@ export class ListingsService {
     @InjectRepository(ListingImage)
     private imagesRepository: Repository<ListingImage>,
     private usersService: UsersService,
+    private imageCompressionService: ImageCompressionService,
+    private moderationService: ModerationService,
   ) {}
 
   async create(
@@ -163,7 +167,12 @@ export class ListingsService {
     listing.publishedAt = new Date();
     listing.expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000); // 90 days
 
-    return this.listingsRepository.save(listing);
+    const saved = await this.listingsRepository.save(listing);
+
+    // Auto-check for moderation issues
+    await this.moderationService.autoFlagListing(saved);
+
+    return saved;
   }
 
   async addImage(
@@ -177,6 +186,27 @@ export class ListingsService {
       listingId,
       fullUrl: imageUrl,
       thumbnailUrl,
+    });
+
+    return this.imagesRepository.save(image);
+  }
+
+  async addImageWithCompression(
+    listingId: number,
+    imageBase64: string,
+  ): Promise<ListingImage> {
+    const listing = await this.findById(listingId);
+
+    const buffer = Buffer.from(imageBase64, 'base64');
+    const { thumbnail, full } = await this.imageCompressionService.compressImage(buffer);
+
+    const thumbB64 = thumbnail.toString('base64');
+    const fullB64 = full.toString('base64');
+
+    const image = this.imagesRepository.create({
+      listingId,
+      fullUrl: `data:image/jpeg;base64,${fullB64}`,
+      thumbnailUrl: `data:image/jpeg;base64,${thumbB64}`,
     });
 
     return this.imagesRepository.save(image);

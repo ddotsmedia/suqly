@@ -24,6 +24,7 @@
     "@nestjs/testing": "^10.3.0",
     "@nestjs/typeorm": "^10.0.0",
     "@nestjs/websockets": "^10.3.0",
+    "@sendgrid/mail": "^8.1.6",
     "@sentry/node": "^7.84.0",
     "@types/jest": "^29.5.0",
     "class-transformer": "^0.5.1",
@@ -33,7 +34,9 @@
     "passport-jwt": "^4.0.0",
     "pg": "^8.11.0",
     "redis": "^4.6.0",
+    "sharp": "^0.35.4",
     "socket.io": "^4.7.0",
+    "twilio": "^6.1.1",
     "typeorm": "^0.3.17",
     "uuid": "^9.0.1"
   },

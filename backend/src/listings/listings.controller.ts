@@ -152,8 +152,20 @@ export class ListingsController {
   @ApiOperation({ summary: 'Add image to listing (authenticated)' })
   async addImage(
     @Param('id') id: string,
-    @Body() body: { imageUrl: string; thumbnailUrl: string },
+    @Body() body: { imageUrl?: string; thumbnailUrl?: string; imageBase64?: string },
   ) {
+    if (body.imageBase64) {
+      const image = await this.listingsService.addImageWithCompression(
+        parseInt(id),
+        body.imageBase64,
+      );
+      return {
+        success: true,
+        data: image,
+        timestamp: new Date(),
+      };
+    }
+
     const image = await this.listingsService.addImage(
       parseInt(id),
       body.imageUrl,

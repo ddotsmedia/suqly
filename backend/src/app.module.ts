@@ -12,6 +12,7 @@ import { UsersModule } from './users/users.module';
 import { ListingsModule } from './listings/listings.module';
 import { MessagesModule } from './messages/messages.module';
 import { ModerationModule } from './moderation/moderation.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 import { databaseConfig } from './config/database.config';
 
@@ -47,6 +48,7 @@ import { ModerationQueue } from './moderation/moderation-queue.entity';
     ListingsModule,
     MessagesModule,
     ModerationModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

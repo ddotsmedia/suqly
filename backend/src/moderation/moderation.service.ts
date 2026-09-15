@@ -4,6 +4,9 @@ import { Repository } from 'typeorm';
 import { ModerationQueue } from './moderation-queue.entity';
 import { Listing } from '../listings/listing.entity';
 
+const BANNED_KEYWORDS = ['casino', 'gambling', 'illegal', 'counterfeit', 'scam'];
+const SUSPICIOUS_PATTERNS = ['contact me outside', 'whatsapp only', 'no inspection'];
+
 @Injectable()
 export class ModerationService {
   constructor(
@@ -136,5 +139,34 @@ export class ModerationService {
       rejected,
       total: pending + approved + rejected,
     };
+  }
+
+  async checkListingForAutoFlag(listing: Listing): Promise<string | null> {
+    const text = `${listing.title} ${listing.description}`.toLowerCase();
+
+    for (const keyword of BANNED_KEYWORDS) {
+      if (text.includes(keyword)) {
+        return `Contains banned keyword: ${keyword}`;
+      }
+    }
+
+    for (const pattern of SUSPICIOUS_PATTERNS) {
+      if (text.includes(pattern)) {
+        return `Suspicious pattern detected: ${pattern}`;
+      }
+    }
+
+    if (listing.price && listing.price < 10) {
+      return 'Suspiciously low price';
+    }
+
+    return null;
+  }
+
+  async autoFlagListing(listing: Listing): Promise<void> {
+    const reason = await this.checkListingForAutoFlag(listing);
+    if (reason) {
+      await this.flagListing(listing.id, reason);
+    }
   }
 }
