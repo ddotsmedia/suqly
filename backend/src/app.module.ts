@@ -13,6 +13,8 @@ import { ListingsModule } from './listings/listings.module';
 import { MessagesModule } from './messages/messages.module';
 import { ModerationModule } from './moderation/moderation.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { PaymentsModule } from './payments/payments.module';
+import { AdminModule } from './admin/admin.module';
 
 import { databaseConfig } from './config/database.config';
 
@@ -22,6 +24,9 @@ import { ListingImage } from './listings/listing-image.entity';
 import { Message } from './messages/message.entity';
 import { Review } from './reviews/review.entity';
 import { ModerationQueue } from './moderation/moderation-queue.entity';
+import { Transaction } from './payments/transaction.entity';
+import { PushSubscription } from './notifications/push-subscription.entity';
+import { Notification } from './notifications/notification.entity';
 
 @Module({
   imports: [
@@ -37,6 +42,9 @@ import { ModerationQueue } from './moderation/moderation-queue.entity';
       Message,
       Review,
       ModerationQueue,
+      Transaction,
+      PushSubscription,
+      Notification,
     ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'suqly-super-secret-key-dev-only',
@@ -49,6 +57,8 @@ import { ModerationQueue } from './moderation/moderation-queue.entity';
     MessagesModule,
     ModerationModule,
     NotificationsModule,
+    PaymentsModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

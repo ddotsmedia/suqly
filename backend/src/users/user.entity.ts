@@ -66,6 +66,21 @@ export class User {
   @Column({ type: 'boolean', default: false })
   privacyAccepted: boolean;
 
+  @Column({ type: 'text', nullable: true })
+  sellerBio: string;
+
+  @Column({ type: 'integer', nullable: true })
+  avgResponseTimeMinutes: number;
+
+  @Column({ type: 'varchar', length: 20, default: 'free' })
+  premiumTier: string;
+
+  @Column({ type: 'boolean', default: false })
+  profileVerified: boolean;
+
+  @Column({ type: 'timestamp', nullable: true })
+  featuredUntil: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 
