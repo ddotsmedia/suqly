@@ -3,6 +3,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as Sentry from '@sentry/node';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { RateLimitGuard } from './common/guards/rate-limit.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -25,6 +28,11 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  // Global filters, interceptors, guards
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new LoggingInterceptor());
+  app.useGlobalGuards(new RateLimitGuard());
 
   // CORS
   app.enableCors({
