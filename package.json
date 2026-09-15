@@ -1,0 +1,23 @@
+{
+  "name": "suqly-marketplace",
+  "version": "0.1.0",
+  "description": "Suqly UAE Marketplace - Find available local listings, understand what is verified, complete with confidence",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=backend & npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=backend && npm run build --workspace=frontend",
+    "test": "npm run test --workspace=backend && npm run test --workspace=frontend",
+    "lint": "npm run lint --workspace=backend && npm run lint --workspace=frontend",
+    "db:migrate": "cd database && npm run migrate",
+    "db:seed": "cd database && npm run seed",
+    "start": "npm run start:prod --workspace=backend & npm run start:prod --workspace=frontend"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.7.0"
+  }
+}

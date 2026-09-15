@@ -1,0 +1,47 @@
+{
+  "name": "suqly-frontend",
+  "version": "0.1.0",
+  "description": "Suqly UAE Marketplace Frontend",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.7.0",
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.31",
+    "autoprefixer": "^10.4.16",
+    "@hookform/resolvers": "^3.4.0",
+    "react-hook-form": "^7.51.0",
+    "zod": "^3.22.0",
+    "zustand": "^4.4.0",
+    "@tanstack/react-query": "^5.25.0",
+    "socket.io-client": "^4.7.0",
+    "axios": "^1.6.0",
+    "class-validator": "^0.14.0",
+    "class-transformer": "^0.5.1",
+    "next-i18next": "^15.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/jest": "^29.5.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^6.1.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "eslint": "^8.54.0",
+    "eslint-config-next": "^15.1.0",
+    "prettier": "^3.1.0"
+  }
+}
