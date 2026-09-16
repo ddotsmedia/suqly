@@ -9,7 +9,6 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init-pgvector.sql:/docker-entrypoint-initdb.d/10-pgvector.sql
     ports:
       - "5432:5432"
     healthcheck:
@@ -20,9 +19,6 @@ services:
     restart: always
     networks:
       - suqly
-    command: >
-      -c shared_preload_libraries=vector
-      -c search_path=public,pgvector
 
   redis:
     image: redis:7-alpine
@@ -42,7 +38,7 @@ services:
     environment:
       - discovery.type=single-node
       - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_PASSWORD}
-      - plugins.security.disabled=false
+      - plugins.security.disabled=true
     ports:
       - "9200:9200"
     healthcheck:
@@ -55,7 +51,10 @@ services:
       - suqly
 
   backend:
-    image: ghcr.io/ddotsmedia/suqly/backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    image: suqly-backend:latest
     depends_on:
       postgres:
         condition: service_healthy
@@ -103,7 +102,10 @@ services:
         max-file: "3"
 
   frontend:
-    image: ghcr.io/ddotsmedia/suqly/frontend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    image: suqly-frontend:latest
     depends_on:
       - backend
     environment:
