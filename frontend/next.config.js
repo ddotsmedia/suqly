@@ -2,18 +2,20 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [
-      'localhost:3000',
-      'suqly.com',
-      'images.suqly.com',
-      'cdn.suqly.com',
-      's3.wasabisys.com',
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.wasabisys.com',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3001',
+      },
     ],
-    formats: ['image/avif', 'image/webp'],
   },
-  i18n: {
-    locales: ['en', 'ar'],
-    defaultLocale: 'en',
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
   },
 };
 
