@@ -8,3 +8,6 @@ export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as Alert } from './Alert';
 export { default as PriceDisplay } from './PriceDisplay';
 export { default as UserAvatar } from './UserAvatar';
+export { default as PriceTag } from './PriceTag';
+export { default as VerifiedBadge } from './VerifiedBadge';
+export { default as SellerCard } from './SellerCard';

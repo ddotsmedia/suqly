@@ -1,7 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-
 interface WebSocketIndicatorProps {
   status: 'connected' | 'connecting' | 'disconnected';
 }
