@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle, AlertCircle, Upload } from 'lucide-react';
+import { CheckCircle, Upload } from 'lucide-react';
 import SellerVerificationBadges from '@/components/SellerVerificationBadges';
 
 interface VerificationStatus {
@@ -13,7 +13,6 @@ interface VerificationStatus {
 }
 
 export default function SellerVerificationPage() {
-  const [step, setStep] = useState<'phone' | 'id' | 'bank'>('phone');
   const [verification, setVerification] = useState<VerificationStatus>({
     verified_id: false,
     verified_bank: false,

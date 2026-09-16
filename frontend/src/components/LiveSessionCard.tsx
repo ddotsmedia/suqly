@@ -1,6 +1,6 @@
 'use client';
 
-import { Loader2, Play, Users } from 'lucide-react';
+import { Play, Users } from 'lucide-react';
 import Link from 'next/link';
 
 interface LiveSession {

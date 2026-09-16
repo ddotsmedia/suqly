@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Param, Body, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { FeatureFlagsService } from '../features/feature-flags.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtGuard } from '../auth/jwt.guard';
 
 @Controller('admin/settings')
 @ApiTags('Admin Settings')
@@ -11,7 +11,7 @@ export class AdminSettingsController {
   @Get('feature-flags')
   @ApiOperation({ summary: 'Get all feature flags grouped by category' })
   @ApiResponse({ status: 200, description: 'Feature flags grouped by category' })
-  async getFeatureFlags() {
+  async getFeatureFlags(): Promise<any> {
     const allFlags = await this.featureFlags.getAllFlags();
 
     const grouped = {
@@ -28,7 +28,7 @@ export class AdminSettingsController {
   }
 
   @Post('feature-flags/:flagName/toggle')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @ApiOperation({ summary: 'Toggle a feature flag on or off' })
   @ApiResponse({
     status: 200,
@@ -57,7 +57,7 @@ export class AdminSettingsController {
   }
 
   @Post('feature-flags/batch-toggle')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @ApiOperation({ summary: 'Toggle all flags in a category' })
   @ApiResponse({ status: 200, description: 'Category flags toggled' })
   async batchToggle(
@@ -77,7 +77,7 @@ export class AdminSettingsController {
 
   @Get('feature-flags/category/:category')
   @ApiOperation({ summary: 'Get feature flags for a specific category' })
-  async getFlagsByCategory(@Param('category') category: string) {
+  async getFlagsByCategory(@Param('category') category: string): Promise<any> {
     const flags = await this.featureFlags.getFlagsByCategory(category);
 
     return {
@@ -101,7 +101,7 @@ export class AdminSettingsController {
   }
 
   @Post('feature-flags/cache-clear')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @ApiOperation({ summary: 'Clear feature flags cache' })
   async clearCache() {
     this.featureFlags.clearCache();

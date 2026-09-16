@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { CheckCircle, Clock } from 'lucide-react';
 
 interface VerificationStatus {
   verified_id: boolean;

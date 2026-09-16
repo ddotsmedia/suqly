@@ -35,7 +35,7 @@ export class PricePredictionService {
       .where('listing.category = :category', { category: listing.category })
       .andWhere('listing.status = :status', { status: 'active' })
       .andWhere('listing.id != :id', { id: listingId })
-      .orderBy('listing.created_at', 'DESC')
+      .orderBy('listing.createdAt', 'DESC')
       .limit(50)
       .getMany();
 
@@ -62,7 +62,7 @@ export class PricePredictionService {
     let weightedSum = 0;
 
     for (const sim of similarListings) {
-      const ageMs = now - new Date(sim.created_at).getTime();
+      const ageMs = now - new Date(sim.createdAt).getTime();
       const ageDays = ageMs / (1000 * 60 * 60 * 24);
       // Weight: newer listings get higher weight (decay with time)
       const weight = Math.exp(-ageDays / 7); // 7-day decay
@@ -76,30 +76,12 @@ export class PricePredictionService {
     let priceAdjustment = 1.0;
     const factors: Record<string, any> = {};
 
-    // Condition-based adjustment
-    if (listing.condition === 'new') {
-      priceAdjustment *= 1.05;
-      factors.condition_new = true;
-    } else if (listing.condition === 'like-new') {
-      priceAdjustment *= 1.03;
-      factors.condition_like_new = true;
-    } else if (listing.condition === 'heavily-used') {
-      priceAdjustment *= 0.92;
-      factors.condition_heavily_used = true;
-    }
-
-    // Seller reputation adjustment
-    if ((listing as any).seller_score > 4.5) {
-      priceAdjustment *= 1.03;
-      factors.high_seller_rating = true;
-    } else if ((listing as any).seller_score < 3.0) {
-      priceAdjustment *= 0.97;
-      factors.low_seller_rating = true;
-    }
+    // Note: condition and seller_score not currently in Listing entity
+    // These can be added in future iterations
 
     // Duration on platform (if too long, maybe lower price)
     const listingAgeDays =
-      (Date.now() - new Date(listing.created_at).getTime()) / (1000 * 60 * 60 * 24);
+      (Date.now() - new Date(listing.createdAt).getTime()) / (1000 * 60 * 60 * 24);
     if (listingAgeDays > 30) {
       priceAdjustment *= 0.95;
       factors.long_listing_duration = true;
@@ -108,7 +90,7 @@ export class PricePredictionService {
     // Demand signal: check if similar items are selling
     const recentlySoldCount = similarListings.filter((l) => {
       const ageDays =
-        (Date.now() - new Date(l.updated_at).getTime()) / (1000 * 60 * 60 * 24);
+        (Date.now() - new Date(l.updatedAt).getTime()) / (1000 * 60 * 60 * 24);
       return ageDays < 7; // Sold/updated in last 7 days
     }).length;
 
@@ -155,13 +137,13 @@ export class PricePredictionService {
     const query = this.listingRepo
       .createQueryBuilder('listing')
       .where('listing.category = :category', { category })
-      .andWhere('listing.created_at >= :date', { date: thirtyDaysAgo });
+      .andWhere('listing.createdAt >= :date', { date: thirtyDaysAgo });
 
     if (emirate) {
       query.andWhere('listing.emirate = :emirate', { emirate });
     }
 
-    const listings = await query.orderBy('listing.created_at', 'ASC').getMany();
+    const listings = await query.orderBy('listing.createdAt', 'ASC').getMany();
 
     // Group by date and calculate daily averages
     const dailyData: Record<
@@ -173,7 +155,7 @@ export class PricePredictionService {
     > = {};
 
     for (const listing of listings) {
-      const dateStr = new Date(listing.created_at).toISOString().split('T')[0];
+      const dateStr = new Date(listing.createdAt).toISOString().split('T')[0];
       if (!dailyData[dateStr]) {
         dailyData[dateStr] = { prices: [], count: 0 };
       }
@@ -270,7 +252,7 @@ export class PricePredictionService {
     // Count sold in last 30 days (simulated by updated_at)
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const soldIn30Days = listings.filter(
-      (l) => new Date(l.updated_at) > thirtyDaysAgo && l.status === 'sold',
+      (l) => new Date(l.updatedAt) > thirtyDaysAgo && l.status === 'sold',
     ).length;
 
     return {

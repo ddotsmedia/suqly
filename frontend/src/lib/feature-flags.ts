@@ -118,7 +118,7 @@ export function useFeatureFlag(flagName: string): boolean {
 }
 
 export function useFeatureFlags() {
-  const [flags, setFlags] = useState<Record<string, boolean>>({});
+  const [flags] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

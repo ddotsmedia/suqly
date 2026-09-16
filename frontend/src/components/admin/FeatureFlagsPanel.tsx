@@ -275,10 +275,10 @@ export default function FeatureFlagsPanel() {
 
       {/* Categories */}
       <div className="space-y-8">
-        {renderCategory('💳 Payment Features', 'payments', flags.payments)}
-        {renderCategory('🏪 Seller Features', 'seller', flags.seller)}
-        {renderCategory('👤 Buyer Features', 'buyer', flags.buyer)}
-        {renderCategory('⚙️ Admin Features', 'admin', flags.admin)}
+        {renderCategory('Payment Features', '💳', 'payments', flags.payments)}
+        {renderCategory('Seller Features', '🏪', 'seller', flags.seller)}
+        {renderCategory('Buyer Features', '👤', 'buyer', flags.buyer)}
+        {renderCategory('Admin Features', '⚙️', 'admin', flags.admin)}
       </div>
 
       {/* Info Box */}

@@ -37,7 +37,7 @@ export class FraudDetectionService {
 
     // Factor 1: Account age (newer = higher risk)
     const accountAgeDays = Math.floor(
-      (Date.now() - new Date(seller.created_at).getTime()) / (1000 * 60 * 60 * 24)
+      (Date.now() - new Date(seller.createdAt).getTime()) / (1000 * 60 * 60 * 24)
     );
     if (accountAgeDays < 7) {
       score += 25;
@@ -48,7 +48,7 @@ export class FraudDetectionService {
     }
 
     // Factor 2: ID verification
-    if (!seller.id_verified) {
+    if (!seller.idVerified) {
       score += 20;
       factors.no_id_verification = true;
     }
@@ -57,8 +57,8 @@ export class FraudDetectionService {
     const lastDay = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const recentListings = await this.listingRepo.count({
       where: {
-        user_id: userId,
-        created_at: MoreThan(lastDay),
+        userId: userId,
+        createdAt: MoreThan(lastDay),
       },
     });
     if (recentListings > 5) {
@@ -81,7 +81,7 @@ export class FraudDetectionService {
     }
 
     // Factor 6: Negative reviews/ratings
-    const avgRating = seller.seller_score || 0;
+    const avgRating = seller.sellerScore || 0;
     if (avgRating < 2.0 && (seller as any).totalReviews > 5) {
       score += 25;
       factors.low_ratings = true;
@@ -148,7 +148,7 @@ export class FraudDetectionService {
     }
 
     // Check seller fraud score
-    const sellerScore = await this.calculateSellerScore(listing.user_id);
+    const sellerScore = await this.calculateSellerScore(listing.userId);
     if (sellerScore.riskLevel === 'high') {
       riskScore += 25;
       flags.push(`seller_high_risk_score: ${sellerScore.score}`);
@@ -158,8 +158,8 @@ export class FraudDetectionService {
     const lastHour = new Date(Date.now() - 60 * 60 * 1000);
     const recentByUser = await this.listingRepo.count({
       where: {
-        user_id: listing.user_id,
-        created_at: MoreThan(lastHour),
+        userId: listing.userId,
+        createdAt: MoreThan(lastHour),
       },
     });
     if (recentByUser > 10) {
@@ -196,8 +196,8 @@ export class FraudDetectionService {
     const seller = await this.userRepo.findOne({ where: { id: userId } });
     if (seller) {
       if (docType === 'emirates_id' || docType === 'passport') {
-        seller.id_verified = verified;
-        seller.id_verified_at = new Date();
+        seller.idVerified = verified;
+        (seller as any).idVerifiedAt = new Date();
       }
       await this.userRepo.save(seller);
     }
@@ -270,7 +270,7 @@ export class FraudDetectionService {
     // Get all listings from last 24 hours
     const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const recentListings = await this.listingRepo.find({
-      where: { created_at: MoreThan(last24h) },
+      where: { createdAt: MoreThan(last24h) },
     });
 
     for (const listing of recentListings) {
@@ -299,7 +299,7 @@ export class FraudDetectionService {
   // Helper methods
   private async getAverageListingPrice(userId: number): Promise<number> {
     const listings = await this.listingRepo.find({
-      where: { user_id: userId },
+      where: { userId: userId },
     });
     if (listings.length === 0) return 0;
     const total = listings.reduce((sum, l) => sum + (l.price || 0), 0);
