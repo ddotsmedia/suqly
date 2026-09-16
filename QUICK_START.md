@@ -1,113 +1,337 @@
-# Suqly Quick Start: Docker CI/CD Deployment
+# Suqly Quick Start — Deployment & Testing
 
-## Prerequisites Checklist
-- [ ] Forked/pushed Suqly repository to GitHub
-- [ ] Access to VPS (194.164.151.202) as root
-- [ ] GitHub repository settings access
-- [ ] DNS control for suqly.com
+**Status**: Production Ready ✅  
+**Repository**: https://github.com/ddotsmedia/suqly  
+**VPS**: 194.164.151.202  
 
-## 5-Minute Setup
+---
 
-### 1. Generate SSH Deploy Key
+## 🚀 Automated Deployment (Recommended)
+
+GitHub Actions automatically deploys every push to `main`:
+
 ```bash
-ssh-keygen -t ed25519 -f ~/.ssh/suqly_deploy -N ""
-cat ~/.ssh/suqly_deploy          # Copy private key
-cat ~/.ssh/suqly_deploy.pub      # Add to VPS ~/.ssh/authorized_keys
-```
+# 1. Make changes locally
+cd C:\web\Suqly
 
-### 2. Add GitHub Secrets
-Go to: **GitHub Repo → Settings → Secrets and Variables → Actions**
-
-Required secrets (8 total):
-```
-VPS_HOST                  → 194.164.151.202
-VPS_USER                  → root
-VPS_SSH_KEY               → (private key from step 1)
-DB_USER                   → postgres
-DB_PASSWORD               → (strong password)
-DB_NAME                   → suqly_prod
-JWT_SECRET                → (min 32 random chars)
-API_URL                   → https://suqly.com/api
-FRONTEND_URL              → https://suqly.com
-NEXT_PUBLIC_API_URL       → https://suqly.com/api
-NEXT_PUBLIC_APP_URL       → https://suqly.com
-```
-
-### 3. Deploy
-```bash
+# 2. Commit and push
 git add .
-git commit -m "chore: add docker ci-cd"
+git commit -m "your message"
 git push origin main
+
+# 3. Watch deployment
+# https://github.com/ddotsmedia/suqly/actions
 ```
 
-→ GitHub Actions workflow starts automatically!
+**That's it!** GitHub Actions handles:
+- Building Docker images
+- Pushing to GHCR
+- Deploying to VPS
+- Running migrations
+- Health checks
 
-### 4. Monitor
-- GitHub → Actions → Watch workflow run (5-10 minutes)
-- Logs will show all steps: test → build → push → deploy
+---
 
-### 5. Verify
+## 🔧 Manual Deployment (If Needed)
+
+### Prerequisite: SSH Key Setup
 ```bash
-curl https://suqly.com              # Frontend
-curl https://suqly.com/api/health   # Backend health
+# 1. Ensure you have SSH key to VPS
+# ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa
+
+# 2. Test SSH
+ssh deploy@194.164.151.202 "echo OK"
+# Should output: OK
 ```
 
-## Files You Need to Know
+### Run Deployment Script
+```bash
+# 1. Make the script executable
+chmod +x deploy.sh
 
-| File | Purpose |
-|------|---------|
-| `Dockerfile.backend` | Builds NestJS app container |
-| `Dockerfile.frontend` | Builds Next.js app container |
-| `docker-compose.prod.yml` | Production container orchestration |
-| `.github/workflows/ci-cd-docker.yml` | GitHub Actions automation |
-| `DOCKER_CI_CD_SETUP.md` | Full setup guide (detailed) |
-| `deploy.sh` | Helper script for SSH operations |
+# 2. Run deployment
+./deploy.sh
 
-## Common Commands
+# 3. Monitor output (should show all ✓)
+```
+
+### What the Script Does
+- ✅ Pulls latest code from GitHub
+- ✅ Verifies ports 3021, 3022 are free
+- ✅ Pulls Docker images
+- ✅ Stops old containers
+- ✅ Starts new containers
+- ✅ Tests frontend & backend
+- ✅ Shows container status and logs
+
+### If Script Fails
+See "Troubleshooting" section below
+
+---
+
+## ✅ Verification Steps
+
+### 1. Test Frontend (Port 3021)
+```bash
+# Should return HTML
+curl http://194.164.151.202:3021
+```
+
+### 2. Test Backend (Port 3022)
+```bash
+# Should return {"status":"healthy",...}
+curl http://194.164.151.202:3022/health
+```
+
+### 3. Check Running Containers
+```bash
+ssh deploy@194.164.151.202 docker ps | grep suqly
+
+# Expected: 5 containers (postgres, redis, opensearch, backend, frontend)
+```
+
+### 4. View Logs
+```bash
+ssh deploy@194.164.151.202
+cd /opt/suqly
+docker-compose logs -f suqly-backend
+```
+
+### 5. Admin Panel
+```bash
+# After DNS update:
+https://suqly.com/admin/settings
+```
+
+---
+
+## 🌐 DNS Configuration
+
+Update your domain registrar with these records:
+
+```dns
+suqly.com              A  194.164.151.202
+api.suqly.com          A  194.164.151.202
+www.suqly.com          A  194.164.151.202
+```
+
+Wait 5-30 minutes for DNS propagation, then:
 
 ```bash
-# Check service status
-./deploy.sh status
+# Should resolve to VPS IP
+nslookup suqly.com
+ping suqly.com
 
-# View logs
-./deploy.sh logs
-./deploy.sh logs-backend
-./deploy.sh logs-frontend
-
-# Restart services
-./deploy.sh restart
-./deploy.sh restart-backend
-
-# Check health
-./deploy.sh health
-
-# Pull latest images
-./deploy.sh pull
+# Should work
+https://suqly.com
+https://api.suqly.com/health
 ```
 
-## Next Commits Trigger Automatic Deployment
+---
 
-Every push to `main` automatically:
-1. Runs tests & linting
-2. Builds Docker images
-3. Pushes to ghcr.io
-4. Deploys to VPS
+## 📋 Troubleshooting
 
-No manual deployment needed! 🚀
+### Containers Won't Start
 
-## Troubleshooting
+```bash
+ssh deploy@194.164.151.202
+cd /opt/suqly
 
-**Workflow failed?**
-→ Check GitHub Actions logs for error details
+# Check logs
+docker-compose logs
 
-**Services not running?**
-→ `./deploy.sh logs` shows what went wrong
+# Common issues:
+# 1. Missing .env.production
+#    Fix: cp .env.production.example .env.production
+#         nano .env.production (fill in secrets)
+#
+# 2. Ports in use
+#    Fix: docker-compose down
+#         docker ps (find conflicting containers)
+#         docker kill <container-id>
+#
+# 3. Insufficient disk space
+#    Fix: df -h (check disk usage)
+#         docker system prune -a (clean up)
+```
 
-**Port already in use?**
-→ Run `ssh root@194.164.151.202 'netstat -tlnp | grep 3021'`
+### Frontend Loads but API Fails
 
-**Need to manually restart?**
-→ `./deploy.sh restart`
+```bash
+# Check backend is running
+curl http://194.164.151.202:3022/health
 
-## Full Documentation
-See `DOCKER_CI_CD_SETUP.md` for complete guide including SSL/TLS setup.
+# Check network
+ssh deploy@194.164.151.202 docker network ls
+
+# Restart backend
+docker-compose restart suqly-backend
+
+# Check frontend env var
+docker-compose exec suqly-frontend env | grep NEXT_PUBLIC_API_URL
+```
+
+### Database Migrations Fail
+
+```bash
+# Check database is running
+docker-compose exec postgres pg_isready
+
+# Run migrations manually
+docker-compose exec suqly-backend npm run typeorm migration:run
+
+# Check migration status
+docker-compose exec postgres psql -U postgres -d suqly_db -c "SELECT * FROM migrations;"
+```
+
+### Still Stuck?
+
+1. Check GitHub Actions logs: https://github.com/ddotsmedia/suqly/actions
+2. Check VPS logs: `docker-compose logs --tail=50`
+3. Check disk space: `df -h`
+4. Check memory: `free -h`
+5. Check ports: `netstat -tulpn | grep -E '(3021|3022)'`
+
+---
+
+## 📊 Service Ports
+
+| Service | Port | Access | Status |
+|---------|------|--------|--------|
+| Frontend | 3021 | http://194.164.151.202:3021 | App UI |
+| Backend | 3022 | http://194.164.151.202:3022 | API |
+| PostgreSQL | 5439 | Internal only | Database |
+| Redis | 6384 | Internal only | Cache |
+| OpenSearch | 9201 | Internal only | Search |
+
+---
+
+## 🔐 Environment Variables
+
+Critical variables in `.env.production`:
+
+```env
+# Database
+DB_PASSWORD=<strong-password>
+JWT_SECRET=<32+-char-random-string>
+
+# AI APIs
+ANTHROPIC_API_KEY=sk-ant-...
+
+# Live Commerce
+AGORA_APP_ID=xxxxxxxx
+AGORA_APP_CERTIFICATE=xxxxxxxx
+
+# SMS/Email
+TWILIO_ACCOUNT_SID=...
+SENDGRID_API_KEY=...
+
+# Stripe (optional for free tier)
+STRIPE_SECRET_KEY=sk_test_...
+```
+
+**⚠️ NEVER commit `.env.production` to git!**
+
+---
+
+## 📈 Monitoring
+
+### Health Check Endpoint
+```bash
+curl -s http://194.164.151.202:3022/health | jq .
+
+# Response:
+# {
+#   "status": "healthy",
+#   "timestamp": "2026-09-16T12:00:00Z",
+#   "uptime": 3600,
+#   "services": {
+#     "database": "connected",
+#     "redis": "connected",
+#     "opensearch": "connected"
+#   }
+# }
+```
+
+### Container Health
+```bash
+docker ps --format "table {{.Names}}\t{{.Status}}"
+
+# All should show "Up X minutes"
+```
+
+### Disk Usage
+```bash
+df -h /
+
+# Should be > 50% free
+```
+
+---
+
+## 🔄 Rollback
+
+If deployment breaks, rollback to previous version:
+
+```bash
+# 1. SSH to VPS
+ssh deploy@194.164.151.202
+
+# 2. Stop services
+docker-compose -f /opt/suqly/docker-compose.prod.yml down
+
+# 3. Revert code (or rerun previous GitHub Actions workflow)
+cd /opt/suqly
+git revert HEAD
+# OR
+git checkout <previous-commit-sha>
+
+# 4. Restart
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+---
+
+## 📞 Support Resources
+
+| Issue | Reference |
+|-------|-----------|
+| Deployment guide | `DEPLOYMENT_GUIDE.md` |
+| Operations | `MAINTENANCE.md` |
+| Verification | `DEPLOYMENT_VERIFICATION.md` |
+| Feature flags | `FEATURE_FLAGS_USAGE.md` |
+| Code conventions | `CLAUDE.md` |
+| Advanced features | `ADVANCED_FEATURES.md` |
+| Competitor analysis | `COMPETITOR_ANALYSIS.md` |
+
+---
+
+## ✅ Final Checklist Before Going Live
+
+- [ ] GitHub Actions deployed successfully
+- [ ] All 5 containers running (`docker ps`)
+- [ ] Frontend responds (port 3021)
+- [ ] Backend healthy (port 3022/health)
+- [ ] Database connected
+- [ ] Redis working
+- [ ] OpenSearch indexed
+- [ ] DNS records updated
+- [ ] HTTPS working (Let's Encrypt)
+- [ ] Monitoring alerts configured
+- [ ] Backups scheduled
+- [ ] Team trained on operations
+
+---
+
+## 🎯 What's Next
+
+1. **User Acquisition** — Start marketing
+2. **Feature Toggles** — Test feature flags in admin
+3. **Monitoring** — Watch error tracking (Sentry)
+4. **Feedback** — Gather user feedback
+5. **Payments** — Enable Stripe when ready (toggle in admin)
+
+---
+
+**Last Updated**: September 16, 2026  
+**Status**: Production Ready ✅
