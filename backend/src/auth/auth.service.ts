@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { SmsService } from './sms.service';
 import * as crypto from 'crypto';
+import * as bcrypt from 'bcrypt';
 
 const otpStore = new Map<string, { code: string; expires: number }>();
 
@@ -97,5 +98,46 @@ export class AuthService {
     } catch (err) {
       throw new UnauthorizedException('Invalid token');
     }
+  }
+
+  async adminLogin(
+    username: string,
+    password: string,
+  ): Promise<{ token: string; user: Partial<User> }> {
+    const user = await this.usersRepository.findOne({
+      where: [{ email: username }, { username }],
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (user.role !== 'admin' && user.role !== 'moderator') {
+      throw new UnauthorizedException('Access denied - admin only');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const token = this.jwtService.sign({
+      sub: user.id,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+    });
+
+    return {
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        displayName: user.displayName,
+        role: user.role,
+      },
+    };
   }
 }

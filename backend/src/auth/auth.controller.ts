@@ -43,4 +43,15 @@ export class AuthController {
 
     return this.authService.logout(token);
   }
+
+  @Post('login-admin')
+  @ApiOperation({ summary: 'Admin login with username and password' })
+  @ApiResponse({ status: 200, description: 'Admin token issued successfully' })
+  async loginAdmin(@Body() body: { username: string; password: string }) {
+    if (!body.username || !body.password) {
+      throw new BadRequestException('Username and password are required');
+    }
+
+    return this.authService.adminLogin(body.username, body.password);
+  }
 }

@@ -28,7 +28,7 @@ export class User {
 
   @Column({
     type: 'enum',
-    enum: ['buyer', 'seller', 'merchant', 'staff'],
+    enum: ['admin', 'moderator', 'buyer', 'seller', 'merchant', 'staff'],
     default: 'buyer',
   })
   role: string;
