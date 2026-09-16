@@ -104,40 +104,54 @@ export class AuthService {
     username: string,
     password: string,
   ): Promise<{ token: string; user: Partial<User> }> {
-    const user = await this.usersRepository.findOne({
-      where: [{ email: username }, { username }],
-    });
+    try {
+      console.log('[adminLogin] Attempting login for:', username);
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+      const user = await this.usersRepository.findOne({
+        where: [{ email: username }, { username }],
+      });
 
-    if (user.role !== 'admin' && user.role !== 'moderator') {
-      throw new UnauthorizedException('Access denied - admin only');
-    }
+      console.log('[adminLogin] User found:', user?.email, 'Role:', user?.role);
 
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
 
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+      if (user.role !== 'admin' && user.role !== 'moderator') {
+        console.log('[adminLogin] Access denied - role is:', user.role);
+        throw new UnauthorizedException('Access denied - admin only');
+      }
 
-    const token = this.jwtService.sign({
-      sub: user.id,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-    });
+      console.log('[adminLogin] Comparing passwords...');
+      const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+      console.log('[adminLogin] Password valid:', isPasswordValid);
 
-    return {
-      token,
-      user: {
-        id: user.id,
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      const token = this.jwtService.sign({
+        sub: user.id,
         email: user.email,
         phone: user.phone,
-        displayName: user.displayName,
         role: user.role,
-      },
-    };
+      });
+
+      console.log('[adminLogin] Login successful for:', user.email);
+
+      return {
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          phone: user.phone,
+          displayName: user.displayName,
+          role: user.role,
+        },
+      };
+    } catch (error) {
+      console.error('[adminLogin] Error:', error.message || error);
+      throw error;
+    }
   }
 }
