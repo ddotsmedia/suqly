@@ -9,6 +9,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-pgvector.sql:/docker-entrypoint-initdb.d/10-pgvector.sql
     ports:
       - "5432:5432"
     healthcheck:
@@ -19,6 +20,9 @@ services:
     restart: always
     networks:
       - suqly
+    command: >
+      -c shared_preload_libraries=vector
+      -c search_path=public,pgvector
 
   redis:
     image: redis:7-alpine
