@@ -190,7 +190,7 @@ jobs:
           context: .
           file: ./Dockerfile.backend
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:${{ github.ref_name }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:${{ github.ref_name }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:latest
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -201,7 +201,7 @@ jobs:
           context: .
           file: ./Dockerfile.frontend
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:${{ github.ref_name }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${{ github.ref_name }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:latest
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -237,32 +237,34 @@ jobs:
           ssh -i ~/.ssh/deploy_key $VPS_USER@$VPS_HOST << 'DEPLOY_SCRIPT'
             set -e
             cd /opt/suqly || mkdir -p /opt/suqly
-            
+
+            # Pull latest code
+            git pull origin main || git clone https://github.com/$GHCR_REGISTRY/suqly.git .
+
             # Login to GHCR
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
             # Pull latest images
-            docker pull ghcr.io/$GHCR_REGISTRY/suqly-backend:latest
-            docker pull ghcr.io/$GHCR_REGISTRY/suqly-frontend:latest
-            
-            # Update docker-compose.prod.yml environment variables
-            cat > .env << EOF
+            docker pull ghcr.io/$GHCR_REGISTRY/suqly/backend:latest
+            docker pull ghcr.io/$GHCR_REGISTRY/suqly/frontend:latest
+            docker pull opensearchproject/opensearch:2.11.0
+
+            # Update environment variables
+            cat > .env.production << EOF
+          DB_NAME=$DB_NAME
           DB_USER=$DB_USER
           DB_PASSWORD=$DB_PASSWORD
-          DB_NAME=$DB_NAME
+          OPENSEARCH_PASSWORD=Admin@123456
           JWT_SECRET=$JWT_SECRET
-          API_URL=$API_URL
-          FRONTEND_URL=$FRONTEND_URL
           NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
           NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
-          GHCR_REGISTRY=$GHCR_REGISTRY
           EOF
-            
-            # Restart services
-            docker-compose -f docker-compose.prod.yml down || true
-            docker-compose -f docker-compose.prod.yml up -d
-            
+
+            # Restart services with proper env-file flag
+            docker compose -f docker-compose.prod.yml down || true
+            docker compose -f docker-compose.prod.yml --env-file .env.production up -d
+
             # Wait for services to be healthy
-            sleep 10
-            docker-compose -f docker-compose.prod.yml ps
+            sleep 15
+            docker compose -f docker-compose.prod.yml ps
           DEPLOY_SCRIPT
