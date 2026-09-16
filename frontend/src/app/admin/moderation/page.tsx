@@ -76,23 +76,23 @@ export default function ModerationQueuePage() {
     {
       accessorKey: 'title',
       header: 'Listing',
-      cell: ({ row }) => <span className="font-semibold">{row.original.title}</span>,
+      cell: (props: any) => <span className="font-semibold">{props.row?.original?.title}</span>,
     },
     {
       accessorKey: 'reason',
       header: 'Flag Reason',
-      cell: ({ row }) => <Badge variant="yellow">{row.original.reason}</Badge>,
+      cell: (props: any) => <Badge variant="yellow">{props.row?.original?.reason}</Badge>,
     },
     {
       accessorKey: 'flagCount',
       header: 'Flags',
-      cell: ({ row }) => <span className="font-bold">{row.original.flagCount}</span>,
+      cell: (props: any) => <span className="font-bold">{props.row?.original?.flagCount}</span>,
     },
     {
       accessorKey: 'confidence',
       header: 'AI Confidence',
-      cell: ({ row }) => {
-        const conf = row.original.confidence;
+      cell: (props: any) => {
+        const conf = props.row?.original?.confidence;
         const variant = conf > 80 ? 'red' : conf > 60 ? 'yellow' : 'green';
         return <Badge variant={variant as any}>{conf}%</Badge>;
       },
@@ -104,7 +104,7 @@ export default function ModerationQueuePage() {
     {
       id: 'actions',
       header: 'Actions',
-      cell: ({ row }) => (
+      cell: () => (
         <div className="flex gap-2">
           <button className="text-green-600 hover:underline text-sm font-semibold">Approve</button>
           <button className="text-red-600 hover:underline text-sm font-semibold">Reject</button>

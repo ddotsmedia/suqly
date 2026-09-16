@@ -1,7 +1,7 @@
 'use client';
 
-import { AnalyticsCard, LineChart } from '@/components/admin';
-import { DataTable, Card } from '@/components';
+import { AnalyticsCard, LineChart, DataTable } from '@/components/admin';
+import { Card } from '@/components';
 import { useState } from 'react';
 
 interface Transaction {
@@ -38,7 +38,7 @@ export default function TransactionsPage() {
     {
       accessorKey: 'id',
       header: 'Transaction ID',
-      cell: ({ row }) => <span className="font-mono text-sm">{row.original.id}</span>,
+      cell: (props: any) => <span className="font-mono text-sm">{props.row?.original?.id}</span>,
     },
     {
       accessorKey: 'buyer',
@@ -51,18 +51,18 @@ export default function TransactionsPage() {
     {
       accessorKey: 'amount',
       header: 'Amount',
-      cell: ({ row }) => `AED ${row.original.amount}`,
+      cell: (props: any) => `AED ${props.row?.original?.amount}`,
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }) => {
-        const colors = {
+      cell: (props: any) => {
+        const colors: any = {
           completed: 'text-green-600',
           pending: 'text-yellow-600',
           failed: 'text-red-600',
         };
-        return <span className={`font-semibold ${colors[row.original.status]}`}>{row.original.status}</span>;
+        return <span className={`font-semibold ${colors[props.row?.original?.status]}`}>{props.row?.original?.status}</span>;
       },
     },
     {

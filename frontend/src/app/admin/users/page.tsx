@@ -54,13 +54,13 @@ const MOCK_USERS: User[] = [
 
 export default function UsersPage() {
   const [filters, setFilters] = useState({});
-  const [users, setUsers] = useState(MOCK_USERS);
+  const [users] = useState(MOCK_USERS);
 
   const columns: any[] = [
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ row }) => <span className="font-semibold">{row.original.name}</span>,
+      cell: (props: any) => <span className="font-semibold">{props.row?.original?.name}</span>,
     },
     {
       accessorKey: 'email',
@@ -73,14 +73,14 @@ export default function UsersPage() {
     {
       accessorKey: 'role',
       header: 'Role',
-      cell: ({ row }) => <Badge variant="blue">{row.original.role.toUpperCase()}</Badge>,
+      cell: (props: any) => <Badge variant="blue">{props.row?.original?.role?.toUpperCase()}</Badge>,
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: ({ row }) => {
-        const variant = row.original.status === 'active' ? 'green' : 'red';
-        return <Badge variant={variant as any}>{row.original.status.toUpperCase()}</Badge>;
+      cell: (props: any) => {
+        const variant = props.row?.original?.status === 'active' ? 'green' : 'red';
+        return <Badge variant={variant as any}>{props.row?.original?.status?.toUpperCase()}</Badge>;
       },
     },
     {
