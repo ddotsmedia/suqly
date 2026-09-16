@@ -1,79 +1,120 @@
 'use client';
 
-import { Card, Badge } from '@/components';
-import { useState } from 'react';
+import { AnalyticsCard, LineChart, BarChart, PieChart, WebSocketIndicator } from '@/components/admin';
+import { Button } from '@/components';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
 export default function AdminDashboard() {
-  const [flaggedListings] = useState([
-    { id: 1, title: 'Suspicious Item', reason: 'Banned Keywords', count: 3, date: '2026-09-15' },
-    { id: 2, title: 'Duplicate Listing', reason: 'Duplicate Check', count: 2, date: '2026-09-14' },
-  ]);
+  const [wsStatus, setWsStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connecting');
+  const [stats] = useState({
+    revenue: { value: 'AED 250,000', trend: '+15%', icon: '💰' },
+    users: { value: '1,234', trend: '+8%', icon: '👥' },
+    listings: { value: '567', trend: '-2%', icon: '📋' },
+    flagged: { value: '23', trend: '+5%', icon: '🚩' },
+  });
+
+  const revenueData = [
+    { date: '1 Sep', revenue: 5000 },
+    { date: '5 Sep', revenue: 7500 },
+    { date: '10 Sep', revenue: 6200 },
+    { date: '15 Sep', revenue: 8900 },
+    { date: '20 Sep', revenue: 7100 },
+  ];
+
+  const categoryData = [
+    { name: 'Electronics', value: 120000 },
+    { name: 'Furniture', value: 85000 },
+    { name: 'Fashion', value: 45000 },
+  ];
+
+  const sellerData = [
+    { name: 'Ahmed Al Mazrouei', revenue: 50000 },
+    { name: 'Fatima Al Mansoori', revenue: 35000 },
+    { name: 'Mohammed Al Kaabi', revenue: 28000 },
+  ];
+
+  useEffect(() => {
+    setWsStatus('connected');
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8">Admin Dashboard</h1>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b p-6">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <p className="text-gray-600 mt-1">Welcome back, Admin</p>
+          </div>
+          <WebSocketIndicator status={wsStatus} />
+        </div>
+      </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <p className="text-gray-600 mb-2">Total Users</p>
-            <p className="text-3xl font-bold">1,234</p>
-          </Card>
-
-          <Card>
-            <p className="text-gray-600 mb-2">Total Listings</p>
-            <p className="text-3xl font-bold">5,678</p>
-          </Card>
-
-          <Card>
-            <p className="text-gray-600 mb-2">Total Revenue</p>
-            <p className="text-3xl font-bold">AED 234K</p>
-          </Card>
-
-          <Card>
-            <p className="text-gray-600 mb-2">Flagged Count</p>
-            <p className="text-3xl font-bold text-red-600">42</p>
-          </Card>
+      {/* Content */}
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Object.entries(stats).map(([key, data]: any) => (
+            <AnalyticsCard
+              key={key}
+              title={key.charAt(0).toUpperCase() + key.slice(1)}
+              value={data.value}
+              trend={data.trend}
+              icon={data.icon}
+            />
+          ))}
         </div>
 
-        {/* Moderation Queue */}
-        <Card>
-          <h2 className="text-2xl font-bold mb-4">Moderation Queue</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="border-b">
-                <tr>
-                  <th className="text-left py-2">Listing</th>
-                  <th className="text-left py-2">Reason</th>
-                  <th className="text-center py-2">Flags</th>
-                  <th className="text-left py-2">Date</th>
-                  <th className="text-left py-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {flaggedListings.map((item) => (
-                  <tr key={item.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3">{item.title}</td>
-                    <td>
-                      <Badge variant="yellow">{item.reason}</Badge>
-                    </td>
-                    <td className="text-center font-semibold">{item.count}</td>
-                    <td>{item.date}</td>
-                    <td className="space-x-2">
-                      <button className="text-green-600 hover:underline text-xs font-semibold">
-                        Approve
-                      </button>
-                      <button className="text-red-600 hover:underline text-xs font-semibold">
-                        Reject
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <LineChart
+              data={revenueData}
+              dataKey="revenue"
+              title="Revenue Trend (Last 30 Days)"
+              height={300}
+            />
           </div>
-        </Card>
+          <div>
+            <PieChart
+              data={sellerData}
+              dataKey="revenue"
+              nameKey="name"
+              title="Top Sellers"
+              height={300}
+            />
+          </div>
+        </div>
+
+        <div>
+          <BarChart
+            data={categoryData}
+            dataKey="value"
+            title="Revenue by Category"
+            layout="vertical"
+            height={250}
+          />
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white rounded-lg border p-6">
+          <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Link href="/admin/moderation">
+              <Button className="w-full">View Moderation Queue</Button>
+            </Link>
+            <Link href="/admin/transactions">
+              <Button className="w-full">View Transactions</Button>
+            </Link>
+            <Link href="/admin/health">
+              <Button className="w-full">System Health</Button>
+            </Link>
+            <Link href="/admin/users">
+              <Button className="w-full">Manage Users</Button>
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
