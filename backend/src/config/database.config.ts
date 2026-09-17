@@ -26,6 +26,6 @@ export const databaseConfig: TypeOrmModuleOptions = {
   synchronize: process.env.NODE_ENV === 'development',
   logging: process.env.DB_LOGGING === 'true',
   maxQueryExecutionTime: 5000,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
   retryAttempts: 0,
 };
