@@ -3,23 +3,35 @@ import * as sgMail from '@sendgrid/mail';
 
 @Injectable()
 export class EmailService {
-  private enabled: boolean;
+  private apiKey: string;
   private fromEmail: string;
+  private initialized = false;
 
   constructor() {
-    const apiKey = process.env.SENDGRID_API_KEY;
+    this.apiKey = process.env.SENDGRID_API_KEY;
     this.fromEmail = process.env.SENDGRID_FROM_EMAIL || 'noreply@suqly.com';
+  }
 
-    if (apiKey) {
-      sgMail.setApiKey(apiKey);
-      this.enabled = true;
-    } else {
-      this.enabled = false;
+  private ensureInitialized(): boolean {
+    if (!this.apiKey || !this.apiKey.startsWith('SG')) {
+      return false;
     }
+
+    if (!this.initialized) {
+      try {
+        sgMail.setApiKey(this.apiKey);
+        this.initialized = true;
+      } catch (error) {
+        console.warn('[Email] Failed to initialize SendGrid:', error.message);
+        return false;
+      }
+    }
+
+    return true;
   }
 
   async sendWelcome(email: string, displayName: string): Promise<void> {
-    if (!this.enabled) {
+    if (!this.ensureInitialized()) {
       console.log(`[EMAIL] Welcome email to ${email}`);
       return;
     }
@@ -37,7 +49,7 @@ export class EmailService {
   }
 
   async sendListingPublished(email: string, listingTitle: string, listingUrl: string): Promise<void> {
-    if (!this.enabled) {
+    if (!this.ensureInitialized()) {
       console.log(`[EMAIL] Listing published to ${email}: ${listingTitle}`);
       return;
     }
@@ -55,7 +67,7 @@ export class EmailService {
   }
 
   async sendMessageNotification(email: string, senderName: string, messagePreview: string): Promise<void> {
-    if (!this.enabled) {
+    if (!this.ensureInitialized()) {
       console.log(`[EMAIL] Message from ${senderName} to ${email}`);
       return;
     }
@@ -73,7 +85,7 @@ export class EmailService {
   }
 
   async sendModerationAlert(email: string, listingTitle: string, reason: string): Promise<void> {
-    if (!this.enabled) {
+    if (!this.ensureInitialized()) {
       console.log(`[EMAIL] Moderation alert to ${email}: ${reason}`);
       return;
     }

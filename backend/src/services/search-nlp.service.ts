@@ -50,10 +50,23 @@ export class SearchNlpService {
     'umm ?al ?quwain|uq': 'umm_al_quwain',
   };
 
+  private apiKey: string;
+
   constructor() {
-    this.anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
+    this.apiKey = process.env.ANTHROPIC_API_KEY;
+  }
+
+  private getClient(): Anthropic {
+    if (!this.anthropic) {
+      this.anthropic = new Anthropic({
+        apiKey: this.apiKey,
+      });
+    }
+    return this.anthropic;
+  }
+
+  private isConfigured(): boolean {
+    return this.apiKey && this.apiKey.startsWith('sk-');
   }
 
   async parseConversationalQuery(query: string): Promise<{
@@ -66,8 +79,12 @@ export class SearchNlpService {
     sortBy?: string;
     filters: Record<string, any>;
   }> {
+    if (!this.isConfigured()) {
+      return this.parseQueryManually(query);
+    }
+
     try {
-      const response = await this.anthropic.messages.create({
+      const response = await this.getClient().messages.create({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 300,
         messages: [
@@ -235,8 +252,12 @@ Response as JSON only:
   }
 
   async generateSearchSuggestions(query: string, limit: number = 5): Promise<string[]> {
+    if (!this.isConfigured()) {
+      return [];
+    }
+
     try {
-      const response = await this.anthropic.messages.create({
+      const response = await this.getClient().messages.create({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 200,
         messages: [
@@ -275,15 +296,16 @@ Return as JSON array of strings:
     initialResults: Array<{ id: number; title: string }>,
     userFeedback: string,
   ): Promise<Array<{ id: number; title: string; reranked: boolean }>> {
-    // Use Claude to rerank results based on user feedback
-    // E.g., "show me the red ones" -> boost red items
+    if (!this.isConfigured()) {
+      return initialResults.map((r) => ({ ...r, reranked: false }));
+    }
 
     try {
       const resultsList = initialResults
         .map((r, i) => `${i + 1}. ${r.title}`)
         .join('\n');
 
-      const response = await this.anthropic.messages.create({
+      const response = await this.getClient().messages.create({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 300,
         messages: [

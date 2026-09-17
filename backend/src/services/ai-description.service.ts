@@ -9,11 +9,23 @@ import * as path from 'path';
 @Injectable()
 export class AiDescriptionService {
   private anthropic: Anthropic;
+  private apiKey: string;
 
   constructor() {
-    this.anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
+    this.apiKey = process.env.ANTHROPIC_API_KEY;
+  }
+
+  private getClient(): Anthropic {
+    if (!this.anthropic) {
+      this.anthropic = new Anthropic({
+        apiKey: this.apiKey,
+      });
+    }
+    return this.anthropic;
+  }
+
+  private isConfigured(): boolean {
+    return this.apiKey && this.apiKey.startsWith('sk-');
   }
 
   async generateFromImage(
@@ -25,6 +37,16 @@ export class AiDescriptionService {
     description_ar: string;
     confidence: number;
   }> {
+    if (!this.isConfigured()) {
+      return {
+        title_en: 'Item',
+        title_ar: 'عنصر',
+        description_en: 'Item for sale',
+        description_ar: 'عنصر للبيع',
+        confidence: 0,
+      };
+    }
+
     try {
       // Convert buffer to base64 for Claude Vision API
       const base64Image = imageBuffer.toString('base64');
@@ -33,7 +55,7 @@ export class AiDescriptionService {
       const mediaType = 'image/jpeg';
 
       // Call Claude Vision to analyze image
-      const response = await this.anthropic.messages.create({
+      const response = await this.getClient().messages.create({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 1024,
         messages: [
@@ -111,6 +133,10 @@ Format your response as JSON:
   }
 
   async generateProductTitle(imageBuffer: Buffer, category?: string): Promise<string> {
+    if (!this.isConfigured()) {
+      return 'Item';
+    }
+
     try {
       const base64Image = imageBuffer.toString('base64');
       const mediaType = 'image/jpeg';
@@ -119,7 +145,7 @@ Format your response as JSON:
         ? `Generate a short, compelling product title (max 60 chars) for a ${category} item shown in this image. Just the title, nothing else.`
         : 'Generate a short, compelling product title (max 60 chars) for the item shown in this image. Just the title, nothing else.';
 
-      const response = await this.anthropic.messages.create({
+      const response = await this.getClient().messages.create({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 100,
         messages: [
@@ -162,11 +188,15 @@ Format your response as JSON:
     confidence: number;
     details: string;
   }> {
+    if (!this.isConfigured()) {
+      return { condition: 'unknown', confidence: 0, details: '' };
+    }
+
     try {
       const base64Image = imageBuffer.toString('base64');
       const mediaType = 'image/jpeg';
 
-      const response = await this.anthropic.messages.create({
+      const response = await this.getClient().messages.create({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 200,
         messages: [
@@ -221,11 +251,15 @@ Format your response as JSON:
     material?: string;
     features: string[];
   }> {
+    if (!this.isConfigured()) {
+      return { features: [] };
+    }
+
     try {
       const base64Image = imageBuffer.toString('base64');
       const mediaType = 'image/jpeg';
 
-      const response = await this.anthropic.messages.create({
+      const response = await this.getClient().messages.create({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 300,
         messages: [
@@ -274,8 +308,12 @@ Format your response as JSON:
   }
 
   async generateArabicDescription(englishDescription: string): Promise<string> {
+    if (!this.isConfigured()) {
+      return englishDescription;
+    }
+
     try {
-      const response = await this.anthropic.messages.create({
+      const response = await this.getClient().messages.create({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 500,
         messages: [
@@ -303,8 +341,12 @@ Provide only the Arabic translation, nothing else.`,
   }
 
   async improveDescription(rawDescription: string): Promise<string> {
+    if (!this.isConfigured()) {
+      return rawDescription;
+    }
+
     try {
-      const response = await this.anthropic.messages.create({
+      const response = await this.getClient().messages.create({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 500,
         messages: [
