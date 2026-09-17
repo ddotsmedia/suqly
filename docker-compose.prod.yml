@@ -83,8 +83,6 @@ services:
       FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
       SENTRY_DSN: ${SENTRY_DSN}
       PORT: 3001
-    ports:
-      - "3001:3001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 10s
@@ -111,8 +109,6 @@ services:
       NEXT_PUBLIC_APP_NAME: Suqly
       NEXT_PUBLIC_ENABLE_ANALYTICS: "true"
       NEXT_PUBLIC_ENABLE_SENTRY: "true"
-    ports:
-      - "3000:3000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 10s
