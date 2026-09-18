@@ -92,3 +92,54 @@ export async function deleteSavedSearch(id: number) {
 export async function getSavedSearchResults(id: number) {
   return apiCall(`/listings/saved-searches/${id}/results`);
 }
+
+export async function addToWishlist(listingId: number): Promise<void> {
+  return apiCall(`/listings/${listingId}/wishlist`, {
+    method: 'POST',
+  });
+}
+
+export async function removeFromWishlist(listingId: number): Promise<void> {
+  return apiCall(`/listings/${listingId}/wishlist`, {
+    method: 'DELETE',
+  });
+}
+
+export async function getWishlist(limit = 20, offset = 0) {
+  return apiCall(`/wishlist?limit=${limit}&offset=${offset}`);
+}
+
+export async function getPublicWishlist(shareToken: string) {
+  return apiCall(`/wishlist/share/${shareToken}`);
+}
+
+export async function createWishlistShareLink() {
+  return apiCall('/wishlist/share/create', {
+    method: 'POST',
+  });
+}
+
+export async function deleteWishlistShareLink() {
+  return apiCall('/wishlist/share', {
+    method: 'DELETE',
+  });
+}
+
+export async function checkIsInWishlist(listingId: number) {
+  return apiCall(`/wishlist/check/${listingId}`);
+}
+
+export async function exportWishlistCSV() {
+  const response = await fetch(`${API_URL}/wishlist/export`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('auth_token') : ''}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.status}`);
+  }
+
+  return response.blob();
+}
