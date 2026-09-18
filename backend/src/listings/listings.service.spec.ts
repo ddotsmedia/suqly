@@ -4,6 +4,8 @@ import { ListingsService } from './listings.service';
 import { Listing } from './listing.entity';
 import { ListingImage } from './listing-image.entity';
 import { UsersService } from '../users/users.service';
+import { ImageCompressionService } from './image-compression.service';
+import { ModerationService } from '../moderation/moderation.service';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 
 describe('ListingsService', () => {
@@ -23,6 +25,14 @@ describe('ListingsService', () => {
   const mockUsersService = {
     findById: jest.fn(),
   };
+  const mockImageCompressionService = {
+    compressImage: jest.fn(),
+    getImageMetadata: jest.fn(),
+  };
+  const mockModerationService = {
+    flagListing: jest.fn(),
+    getQueue: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -39,6 +49,14 @@ describe('ListingsService', () => {
         {
           provide: UsersService,
           useValue: mockUsersService,
+        },
+        {
+          provide: ImageCompressionService,
+          useValue: mockImageCompressionService,
+        },
+        {
+          provide: ModerationService,
+          useValue: mockModerationService,
         },
       ],
     }).compile();

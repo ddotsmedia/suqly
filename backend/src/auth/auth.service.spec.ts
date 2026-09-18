@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AuthService } from './auth.service';
+import { SmsService } from './sms.service';
 import { User } from '../users/user.entity';
 
 describe('AuthService', () => {
@@ -24,6 +25,13 @@ describe('AuthService', () => {
             findOne: jest.fn(),
             create: jest.fn(),
             save: jest.fn(),
+          },
+        },
+        {
+          provide: SmsService,
+          useValue: {
+            sendOtp: jest.fn(),
+            sendMessage: jest.fn(),
           },
         },
       ],
