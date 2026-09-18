@@ -8,14 +8,21 @@ import {
   Body,
   Query,
   UseGuards,
+  UseInterceptors,
   Request,
   BadRequestException,
   ParseFloatPipe,
   ParseIntPipe,
+  UploadedFiles,
+  UploadedFile,
+  Response,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ListingsService } from './listings.service';
 import { GeocodingService } from './geocoding.service';
+import { ImageUploadService } from './image-upload.service';
+import { CsvImportService } from './csv-import.service';
 import { JwtGuard } from '../auth/jwt.guard';
 
 @ApiTags('Listings')
@@ -24,6 +31,8 @@ export class ListingsController {
   constructor(
     private listingsService: ListingsService,
     private geocodingService: GeocodingService,
+    private imageUploadService: ImageUploadService,
+    private csvImportService: CsvImportService,
   ) {}
 
   @Get()
@@ -228,6 +237,96 @@ export class ListingsController {
     const result = await this.geocodingService.forwardGeocode(body.address);
     return {
       success: !!result,
+      data: result,
+      timestamp: new Date(),
+    };
+  }
+
+  @Post('upload/images')
+  @UseGuards(JwtGuard)
+  @UseInterceptors(FilesInterceptor('files', 10))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Upload multiple images (authenticated)' })
+  async uploadImages(@UploadedFiles() files: Express.Multer.File[]) {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('No files provided');
+    }
+
+    await this.imageUploadService.validateMultipleImages(files);
+    await this.imageUploadService.ensureUploadDir();
+
+    const images = [];
+    for (const file of files) {
+      const compressed = await this.imageUploadService.validateAndCompressImage(file);
+      images.push({
+        id: compressed.id,
+        filename: compressed.filename,
+        sizeBytes: compressed.sizeBytes,
+        uploadedAt: new Date(),
+      });
+    }
+
+    return {
+      success: true,
+      data: { images },
+      timestamp: new Date(),
+    };
+  }
+
+  @Get('import/csv/template')
+  @ApiOperation({ summary: 'Download CSV import template' })
+  async getCsvTemplate(@Response() res: any) {
+    const template = this.csvImportService.generateTemplate();
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=listings-template.csv');
+    res.send(template);
+  }
+
+  @Post('import/csv')
+  @UseGuards(JwtGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Import listings from CSV (authenticated)' })
+  async importCsv(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: { fieldMapping?: string; imageIds?: string },
+    @Request() req: any,
+  ) {
+    if (!file) {
+      throw new BadRequestException('No CSV file provided');
+    }
+
+    if (file.mimetype !== 'text/csv' && !file.originalname.endsWith('.csv')) {
+      throw new BadRequestException('File must be CSV format');
+    }
+
+    const fieldMapping = body.fieldMapping
+      ? JSON.parse(body.fieldMapping)
+      : {
+          title: 'title',
+          category: 'category',
+          price: 'price',
+          description: 'description',
+          condition: 'condition',
+          location: 'location',
+          phone: 'phone',
+          whatsapp_enabled: 'whatsapp_enabled',
+          telegram_username: 'telegram_username',
+        };
+
+    const imageIds = body.imageIds
+      ? body.imageIds.split(',').map((id) => parseInt(id))
+      : [];
+
+    const result = await this.csvImportService.importListings(
+      file.buffer,
+      req.user.id,
+      fieldMapping,
+      imageIds,
+    );
+
+    return {
+      success: true,
       data: result,
       timestamp: new Date(),
     };

@@ -222,3 +222,78 @@ export async function updateContactInfo(phoneNumber?: string, telegramUsername?:
 export async function getPublicContactInfo(userId: number) {
   return apiCall(`/users/${userId}/contact-info`);
 }
+
+export async function uploadImages(files: File[]): Promise<{ images: Array<{ id: string; filename: string; sizeBytes: number; uploadedAt: string }> }> {
+  const formData = new FormData();
+  files.forEach((file) => {
+    formData.append('files', file);
+  });
+
+  const url = `${API_URL}/listings/upload/images`;
+  const headers: Record<string, string> = {};
+
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Upload failed: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getCsvTemplate(): Promise<Blob> {
+  const url = `${API_URL}/listings/import/csv/template`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Failed to download template: ${response.statusText}`);
+  }
+
+  return response.blob();
+}
+
+export async function importCsv(
+  file: File,
+  fieldMapping: Record<string, string>,
+  imageIds?: number[],
+): Promise<{ created: number; failed: number; errors: Array<{ row: number; field: string; error: string }>; listings: number[] }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('fieldMapping', JSON.stringify(fieldMapping));
+  if (imageIds && imageIds.length > 0) {
+    formData.append('imageIds', imageIds.join(','));
+  }
+
+  const url = `${API_URL}/listings/import/csv`;
+  const headers: Record<string, string> = {};
+
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(`CSV import failed: ${response.statusText}`);
+  }
+
+  return response.json();
+}
