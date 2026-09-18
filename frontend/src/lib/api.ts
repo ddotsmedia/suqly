@@ -200,3 +200,25 @@ export async function geocodeAddress(address: string) {
 export function getDirectionsUrl(fromLat: number, fromLng: number, toLat: number, toLng: number): string {
   return `https://www.google.com/maps/dir/${fromLat},${fromLng}/${toLat},${toLng}`;
 }
+
+export async function getContactLink(listingId: number, contactMethod: 'whatsapp' | 'telegram') {
+  return apiCall('/messaging/contact-link', {
+    method: 'POST',
+    body: JSON.stringify({ listingId, contactMethod }),
+  });
+}
+
+export async function getListingContactMethods(listingId: number) {
+  return apiCall(`/listings/${listingId}/contact-methods`);
+}
+
+export async function updateContactInfo(phoneNumber?: string, telegramUsername?: string) {
+  return apiCall('/users/contact-info', {
+    method: 'POST',
+    body: JSON.stringify({ phoneNumber, telegramUsername }),
+  });
+}
+
+export async function getPublicContactInfo(userId: number) {
+  return apiCall(`/users/${userId}/contact-info`);
+}
