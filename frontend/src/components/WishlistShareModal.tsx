@@ -1,13 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy, Twitter, Facebook, X } from 'lucide-react';
+import { Copy, X } from 'lucide-react';
 
 interface WishlistShareModalProps {
   isOpen: boolean;
   onClose: () => void;
   shareUrl?: string;
-  shareToken?: string;
   onDelete?: () => Promise<void>;
 }
 
@@ -15,7 +14,6 @@ export function WishlistShareModal({
   isOpen,
   onClose,
   shareUrl,
-  shareToken,
   onDelete,
 }: WishlistShareModalProps) {
   const [copied, setCopied] = useState(false);
@@ -92,16 +90,15 @@ export function WishlistShareModal({
               <div className="flex gap-2">
                 <button
                   onClick={shareOnTwitter}
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500"
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800"
                 >
-                  <Twitter className="w-4 h-4" />
-                  Twitter
+                  <X className="w-4 h-4" />
+                  X
                 </button>
                 <button
                   onClick={shareOnFacebook}
                   className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
-                  <Facebook className="w-4 h-4" />
                   Facebook
                 </button>
               </div>

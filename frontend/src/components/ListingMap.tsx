@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 
 interface ListingMapProps {
   listings: Array<{
@@ -14,16 +14,13 @@ interface ListingMapProps {
   }>;
   center?: { lat: number; lng: number };
   zoom?: number;
-  onMarkerClick?: (listingId: number) => void;
 }
 
 export function ListingMap({
   listings,
   center = { lat: 25.2048, lng: 55.2708 },
   zoom = 12,
-  onMarkerClick,
 }: ListingMapProps) {
-  const [selectedMarker, setSelectedMarker] = useState<number | null>(null);
 
   const filteredListings = useMemo(
     () => listings.filter((l) => l.latitude && l.longitude),

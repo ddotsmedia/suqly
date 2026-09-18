@@ -18,12 +18,10 @@ export function ContactButton({
   className = '',
 }: ContactButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleClick = async () => {
     try {
       setIsLoading(true);
-      setError(null);
 
       const response = await getContactLink(listingId, method);
 
@@ -31,7 +29,7 @@ export function ContactButton({
         window.open(response.url, '_blank');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to open contact');
+      console.error('Contact link error:', err);
     } finally {
       setIsLoading(false);
     }
