@@ -60,3 +60,35 @@ export async function verifyOTP(phone: string, otp: string) {
     body: JSON.stringify({ phone, otp }),
   });
 }
+
+export async function createSavedSearch(name: string, query: Record<string, any>, filters: Record<string, any>, emailAlert: boolean, frequency: string) {
+  return apiCall('/listings/saved-searches', {
+    method: 'POST',
+    body: JSON.stringify({ name, query, filters, emailAlert, frequency }),
+  });
+}
+
+export async function getSavedSearches(limit = 10, offset = 0) {
+  return apiCall(`/listings/saved-searches?limit=${limit}&offset=${offset}`);
+}
+
+export async function getSavedSearch(id: number) {
+  return apiCall(`/listings/saved-searches/${id}`);
+}
+
+export async function updateSavedSearch(id: number, name: string, query: Record<string, any>, filters: Record<string, any>, emailAlert: boolean, frequency: string) {
+  return apiCall(`/listings/saved-searches/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ name, query, filters, emailAlert, frequency }),
+  });
+}
+
+export async function deleteSavedSearch(id: number) {
+  return apiCall(`/listings/saved-searches/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function getSavedSearchResults(id: number) {
+  return apiCall(`/listings/saved-searches/${id}/results`);
+}
