@@ -5,6 +5,11 @@ import { ListingImage } from '../listings/listing-image.entity';
 import { Message } from '../messages/message.entity';
 import { Review } from '../reviews/review.entity';
 import { ModerationQueue } from '../moderation/moderation-queue.entity';
+import { Transaction } from '../payments/transaction.entity';
+import { PushSubscription } from '../notifications/push-subscription.entity';
+import { Notification } from '../notifications/notification.entity';
+import { Payout, StripeConnectAccount } from '../payouts/payout.entity';
+import { SubscriptionTier, SellerSubscription, SavedSearch, AuditLog } from '../subscriptions/subscription.entity';
 
 export const databaseConfig: TypeOrmModuleOptions = {
   type: 'postgres',
@@ -20,11 +25,20 @@ export const databaseConfig: TypeOrmModuleOptions = {
     Message,
     Review,
     ModerationQueue,
+    Transaction,
+    PushSubscription,
+    Notification,
+    Payout,
+    StripeConnectAccount,
+    SubscriptionTier,
+    SellerSubscription,
+    SavedSearch,
+    AuditLog,
   ],
   migrations: ['src/database/migrations/*.ts'],
   migrationsRun: process.env.DB_RUN_MIGRATIONS === 'true',
-  synchronize: process.env.DB_SYNC !== 'false',
-  logging: process.env.DB_LOGGING === 'true',
+  synchronize: true,
+  logging: true,
   maxQueryExecutionTime: 5000,
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
   retryAttempts: 0,
