@@ -6,6 +6,8 @@ import { ListingsController } from './listings.controller';
 import { ImageCompressionService } from './image-compression.service';
 import { ImageUploadService } from './image-upload.service';
 import { CsvImportService } from './csv-import.service';
+import { ImageProcessingService } from './image-processing.service';
+import { BatchOperationsService } from './batch-operations.service';
 import { GeocodingService } from './geocoding.service';
 import { SavedSearchesService } from './saved-searches.service';
 import { SavedSearchesController } from './saved-searches.controller';
@@ -62,6 +64,8 @@ import { FeaturedListingsExpiryProcessor } from '../jobs/featured-listings-expir
     ImageCompressionService,
     ImageUploadService,
     CsvImportService,
+    ImageProcessingService,
+    BatchOperationsService,
     SavedSearchesService,
     WishlistService,
     FeaturedListingsService,
@@ -74,6 +78,8 @@ import { FeaturedListingsExpiryProcessor } from '../jobs/featured-listings-expir
     ImageCompressionService,
     ImageUploadService,
     CsvImportService,
+    ImageProcessingService,
+    BatchOperationsService,
     SavedSearchesService,
     WishlistService,
     FeaturedListingsService,

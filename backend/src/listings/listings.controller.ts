@@ -23,6 +23,7 @@ import { ListingsService } from './listings.service';
 import { GeocodingService } from './geocoding.service';
 import { ImageUploadService } from './image-upload.service';
 import { CsvImportService } from './csv-import.service';
+import { BatchOperationsService } from './batch-operations.service';
 import { JwtGuard } from '../auth/jwt.guard';
 
 @ApiTags('Listings')
@@ -33,6 +34,7 @@ export class ListingsController {
     private geocodingService: GeocodingService,
     private imageUploadService: ImageUploadService,
     private csvImportService: CsvImportService,
+    private batchOperationsService: BatchOperationsService,
   ) {}
 
   @Get()
@@ -325,6 +327,104 @@ export class ListingsController {
       imageIds,
     );
 
+    return {
+      success: true,
+      data: result,
+      timestamp: new Date(),
+    };
+  }
+
+  @Post('batch/edit')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Batch edit multiple listings (authenticated)' })
+  async batchEdit(
+    @Body() body: { listingIds: number[]; updates: any },
+    @Request() req: any,
+  ) {
+    const result = await this.batchOperationsService.batchEdit(
+      body.listingIds,
+      body.updates,
+      req.user.id,
+    );
+    return {
+      success: true,
+      data: result,
+      timestamp: new Date(),
+    };
+  }
+
+  @Post('batch/feature')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Batch feature multiple listings (authenticated)' })
+  async batchFeature(
+    @Body() body: { listingIds: number[]; tier: 'free' | 'premium' },
+    @Request() req: any,
+  ) {
+    const result = await this.batchOperationsService.batchFeature(
+      body.listingIds,
+      body.tier,
+      req.user.id,
+    );
+    return {
+      success: true,
+      data: result,
+      timestamp: new Date(),
+    };
+  }
+
+  @Post('batch/delete')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Batch delete multiple listings (authenticated)' })
+  async batchDelete(
+    @Body() body: { listingIds: number[] },
+    @Request() req: any,
+  ) {
+    const result = await this.batchOperationsService.batchDelete(
+      body.listingIds,
+      req.user.id,
+    );
+    return {
+      success: true,
+      data: result,
+      timestamp: new Date(),
+    };
+  }
+
+  @Post('batch/status')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Batch change status of multiple listings (authenticated)' })
+  async batchStatus(
+    @Body() body: { listingIds: number[]; status: 'active' | 'sold' | 'inactive' },
+    @Request() req: any,
+  ) {
+    const result = await this.batchOperationsService.batchStatusChange(
+      body.listingIds,
+      body.status,
+      req.user.id,
+    );
+    return {
+      success: true,
+      data: result,
+      timestamp: new Date(),
+    };
+  }
+
+  @Post('batch/renew')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Batch renew multiple listings (authenticated)' })
+  async batchRenew(
+    @Body() body: { listingIds: number[] },
+    @Request() req: any,
+  ) {
+    const result = await this.batchOperationsService.batchRenew(
+      body.listingIds,
+      req.user.id,
+    );
     return {
       success: true,
       data: result,

@@ -31,6 +31,18 @@ export interface ImportResult {
   failed: number;
   errors: ValidationError[];
   listings: number[];
+  duplicates?: string[];
+}
+
+export interface DryRunResult {
+  preview: CsvRow[];
+  validationSummary: {
+    totalRows: number;
+    validRows: number;
+    invalidRows: number;
+    duplicates: number;
+    errors: ValidationError[];
+  };
 }
 
 interface FieldMapping {
@@ -281,6 +293,69 @@ export class CsvImportService {
         await this.imagesRepository.save(image);
       }
     }
+  }
+
+  async dryRunImport(
+    buffer: Buffer,
+    fieldMapping: FieldMapping,
+  ): Promise<DryRunResult> {
+    const rows = await this.parseCSV(buffer);
+    const preview = rows.slice(0, 5);
+    const validRows = [];
+    const invalidRows = [];
+    const allErrors: ValidationError[] = [];
+    const duplicateTitles = new Set<string>();
+    let duplicateCount = 0;
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const errors = this.validateRow(row, i + 2, fieldMapping);
+
+      if (errors.length === 0) {
+        const title = row[fieldMapping.title]?.trim();
+        if (duplicateTitles.has(title)) {
+          duplicateCount++;
+        } else {
+          duplicateTitles.add(title);
+          validRows.push(row);
+        }
+      } else {
+        invalidRows.push(row);
+        allErrors.push(...errors);
+      }
+    }
+
+    return {
+      preview,
+      validationSummary: {
+        totalRows: rows.length,
+        validRows: validRows.length,
+        invalidRows: invalidRows.length,
+        duplicates: duplicateCount,
+        errors: allErrors.slice(0, 10),
+      },
+    };
+  }
+
+  private detectDuplicateListings(rows: CsvRow[], fieldMapping: FieldMapping): Set<string> {
+    const duplicates = new Set<string>();
+    const seen = new Map<string, number>();
+
+    for (const row of rows) {
+      const title = row[fieldMapping.title]?.trim() || '';
+      const price = row[fieldMapping.price]?.trim() || '';
+      const location = row[fieldMapping.location]?.trim() || '';
+
+      const key = `${title}:${price}:${location}`;
+
+      if (seen.has(key)) {
+        duplicates.add(key);
+      } else {
+        seen.set(key, 1);
+      }
+    }
+
+    return duplicates;
   }
 
   generateTemplate(): string {
