@@ -23,7 +23,7 @@ export const databaseConfig: TypeOrmModuleOptions = {
   ],
   migrations: ['src/database/migrations/*.ts'],
   migrationsRun: process.env.DB_RUN_MIGRATIONS === 'true',
-  synchronize: process.env.NODE_ENV === 'development',
+  synchronize: process.env.DB_SYNC === 'true' || process.env.NODE_ENV === 'development',
   logging: process.env.DB_LOGGING === 'true',
   maxQueryExecutionTime: 5000,
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
