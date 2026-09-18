@@ -107,7 +107,7 @@ services:
     depends_on:
       - backend
     environment:
-      NEXT_PUBLIC_API_URL: https://api.suqly.com
+      NEXT_PUBLIC_API_URL: https://suqly.com/api
       NEXT_PUBLIC_APP_NAME: Suqly
       NEXT_PUBLIC_ENABLE_ANALYTICS: "true"
       NEXT_PUBLIC_ENABLE_SENTRY: "true"

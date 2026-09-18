@@ -3,6 +3,19 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Accept build arguments for environment variables
+ARG NEXT_PUBLIC_API_URL=https://suqly.com/api
+ARG NEXT_PUBLIC_APP_NAME=Suqly
+ARG NEXT_PUBLIC_ENABLE_ANALYTICS=true
+ARG NEXT_PUBLIC_ENABLE_SENTRY=true
+
+# Set environment variables for build
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_APP_NAME=$NEXT_PUBLIC_APP_NAME
+ENV NEXT_PUBLIC_ENABLE_ANALYTICS=$NEXT_PUBLIC_ENABLE_ANALYTICS
+ENV NEXT_PUBLIC_ENABLE_SENTRY=$NEXT_PUBLIC_ENABLE_SENTRY
+ENV NODE_ENV=production
+
 # Copy package files
 COPY frontend/package.json ./
 
@@ -11,14 +24,13 @@ RUN npm install --legacy-peer-deps
 
 # Copy source code and config
 COPY frontend/src ./src
-COPY frontend/.env.production ./
 COPY frontend/next.config.js ./
 COPY frontend/tsconfig.json ./
 COPY frontend/postcss.config.js ./
 COPY frontend/tailwind.config.js ./
 
 # Build the application
-RUN NODE_ENV=production npm run build
+RUN npm run build
 
 # Production stage
 FROM node:20-alpine
