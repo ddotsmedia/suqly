@@ -9,18 +9,12 @@ type ContactMethod = 'whatsapp' | 'telegram';
 interface ContactButtonProps {
   listingId: number;
   method: ContactMethod;
-  sellerName: string;
-  listingTitle: string;
-  listingPrice: number;
   className?: string;
 }
 
 export function ContactButton({
   listingId,
   method,
-  sellerName,
-  listingTitle,
-  listingPrice,
   className = '',
 }: ContactButtonProps) {
   const [isLoading, setIsLoading] = useState(false);

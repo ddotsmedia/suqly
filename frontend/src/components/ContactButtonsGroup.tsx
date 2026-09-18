@@ -4,9 +4,6 @@ import { ContactButton } from './ContactButton';
 
 interface ContactButtonsGroupProps {
   listingId: number;
-  listingTitle: string;
-  listingPrice: number;
-  sellerName: string;
   availableMethods: {
     whatsapp?: boolean;
     telegram?: boolean;
@@ -17,9 +14,6 @@ interface ContactButtonsGroupProps {
 
 export function ContactButtonsGroup({
   listingId,
-  listingTitle,
-  listingPrice,
-  sellerName,
   availableMethods,
   maskedPhone,
   compact = false,
@@ -43,9 +37,6 @@ export function ContactButtonsGroup({
             key={method}
             listingId={listingId}
             method={method}
-            sellerName={sellerName}
-            listingTitle={listingTitle}
-            listingPrice={listingPrice}
             className={`flex-1 ${compact ? 'px-3 py-1 text-sm' : 'px-4 py-2'}`}
           />
         ))}
