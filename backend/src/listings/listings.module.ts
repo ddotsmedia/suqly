@@ -12,14 +12,22 @@ import {
   WishlistListController,
   WishlistCheckController,
 } from './wishlist.controller';
+import { FeaturedListingsService } from './featured-listings.service';
+import {
+  FeaturedListingsController,
+  FeaturedListingsAdminController,
+  FeaturedListingsManagementController,
+} from './featured-listings.controller';
 import { Listing } from './listing.entity';
 import { ListingImage } from './listing-image.entity';
 import { SavedSearch } from './saved-search.entity';
 import { WishlistItem, WishlistShare } from './wishlist.entity';
+import { FeaturedListing } from './featured-listing.entity';
 import { UsersModule } from '../users/users.module';
 import { ModerationModule } from '../moderation/moderation.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { SavedSearchesEmailProcessor } from '../jobs/saved-searches-email.processor';
+import { FeaturedListingsExpiryProcessor } from '../jobs/featured-listings-expiry.processor';
 
 @Module({
   imports: [
@@ -30,6 +38,7 @@ import { SavedSearchesEmailProcessor } from '../jobs/saved-searches-email.proces
       SavedSearch,
       WishlistItem,
       WishlistShare,
+      FeaturedListing,
     ]),
     UsersModule,
     ModerationModule,
@@ -41,19 +50,25 @@ import { SavedSearchesEmailProcessor } from '../jobs/saved-searches-email.proces
     WishlistController,
     WishlistListController,
     WishlistCheckController,
+    FeaturedListingsController,
+    FeaturedListingsAdminController,
+    FeaturedListingsManagementController,
   ],
   providers: [
     ListingsService,
     ImageCompressionService,
     SavedSearchesService,
     WishlistService,
+    FeaturedListingsService,
     SavedSearchesEmailProcessor,
+    FeaturedListingsExpiryProcessor,
   ],
   exports: [
     ListingsService,
     ImageCompressionService,
     SavedSearchesService,
     WishlistService,
+    FeaturedListingsService,
   ],
 })
 export class ListingsModule {}

@@ -143,3 +143,41 @@ export async function exportWishlistCSV() {
 
   return response.blob();
 }
+
+export async function getFeaturedListings(limit = 10) {
+  return apiCall(`/listings/featured?limit=${limit}`);
+}
+
+export async function featureListingFree(listingId: number) {
+  return apiCall(`/listings/${listingId}/feature/free`, {
+    method: 'POST',
+  });
+}
+
+export async function featureListingPremium(listingId: number, paymentId: string) {
+  return apiCall(`/listings/${listingId}/feature/premium`, {
+    method: 'POST',
+    body: JSON.stringify({ paymentId }),
+  });
+}
+
+export async function unfeatureListing(listingId: number) {
+  return apiCall(`/listings/${listingId}/featured`, {
+    method: 'DELETE',
+  });
+}
+
+export async function getListingFeaturedStatus(listingId: number) {
+  return apiCall(`/listings/${listingId}/featured/status`);
+}
+
+export async function getAdminFeaturedListings(limit = 20, offset = 0) {
+  return apiCall(`/admin/featured-listings?limit=${limit}&offset=${offset}`);
+}
+
+export async function renewFeaturedPremium(listingId: number, paymentId: string) {
+  return apiCall(`/admin/featured-listings/${listingId}/renew`, {
+    method: 'POST',
+    body: JSON.stringify({ paymentId }),
+  });
+}
