@@ -18,6 +18,7 @@ ENV NODE_ENV=production
 
 # Copy package files
 COPY frontend/package.json ./
+COPY frontend/package-lock.json* ./
 
 # Install dependencies
 RUN npm install --legacy-peer-deps
@@ -42,6 +43,7 @@ RUN apk add --no-cache dumb-init
 
 # Copy package files
 COPY frontend/package.json ./
+COPY frontend/package-lock.json* ./
 
 # Install production dependencies only
 RUN npm install --production --legacy-peer-deps
