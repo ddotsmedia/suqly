@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ListingsModule } from './listings/listings.module';
 import { MessagesModule } from './messages/messages.module';
+import { ReviewsModule } from './reviews/reviews.module';
 import { ModerationModule } from './moderation/moderation.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PaymentsModule } from './payments/payments.module';
@@ -65,6 +66,7 @@ import { SubscriptionTier, SellerSubscription, SavedSearch, AuditLog } from './s
     UsersModule,
     ListingsModule,
     MessagesModule,
+    ReviewsModule,
     ModerationModule,
     NotificationsModule,
     PaymentsModule,
