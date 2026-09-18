@@ -89,11 +89,27 @@ export class Listing {
   @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
   slug: string;
 
+  @Column({ type: 'decimal', precision: 10, scale: 8, nullable: true })
+  latitude: number;
+
+  @Column({ type: 'decimal', precision: 11, scale: 8, nullable: true })
+  longitude: number;
+
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  addressGeo: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  getCoordinates() {
+    return {
+      lat: Number(this.latitude),
+      lng: Number(this.longitude),
+    };
+  }
 
   @ManyToOne(() => User, (user) => user.listings, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })

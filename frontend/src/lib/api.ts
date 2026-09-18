@@ -181,3 +181,22 @@ export async function renewFeaturedPremium(listingId: number, paymentId: string)
     body: JSON.stringify({ paymentId }),
   });
 }
+
+export async function getNearbyListings(lat: number, lng: number, radius = 5, limit = 20) {
+  return apiCall(`/listings/nearby?lat=${lat}&lng=${lng}&radius=${radius}&limit=${limit}`);
+}
+
+export async function getListingCoordinates(listingId: number) {
+  return apiCall(`/listings/${listingId}/coordinates`);
+}
+
+export async function geocodeAddress(address: string) {
+  return apiCall('/listings/geocode', {
+    method: 'POST',
+    body: JSON.stringify({ address }),
+  });
+}
+
+export function getDirectionsUrl(fromLat: number, fromLng: number, toLat: number, toLng: number): string {
+  return `https://www.google.com/maps/dir/${fromLat},${fromLng}/${toLat},${toLng}`;
+}

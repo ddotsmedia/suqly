@@ -4,6 +4,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ListingsService } from './listings.service';
 import { ListingsController } from './listings.controller';
 import { ImageCompressionService } from './image-compression.service';
+import { GeocodingService } from './geocoding.service';
 import { SavedSearchesService } from './saved-searches.service';
 import { SavedSearchesController } from './saved-searches.controller';
 import { WishlistService } from './wishlist.service';
@@ -60,6 +61,7 @@ import { FeaturedListingsExpiryProcessor } from '../jobs/featured-listings-expir
     SavedSearchesService,
     WishlistService,
     FeaturedListingsService,
+    GeocodingService,
     SavedSearchesEmailProcessor,
     FeaturedListingsExpiryProcessor,
   ],
@@ -69,6 +71,7 @@ import { FeaturedListingsExpiryProcessor } from '../jobs/featured-listings-expir
     SavedSearchesService,
     WishlistService,
     FeaturedListingsService,
+    GeocodingService,
   ],
 })
 export class ListingsModule {}

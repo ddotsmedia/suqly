@@ -10,15 +10,21 @@ import {
   UseGuards,
   Request,
   BadRequestException,
+  ParseFloatPipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ListingsService } from './listings.service';
+import { GeocodingService } from './geocoding.service';
 import { JwtGuard } from '../auth/jwt.guard';
 
 @ApiTags('Listings')
 @Controller('listings')
 export class ListingsController {
-  constructor(private listingsService: ListingsService) {}
+  constructor(
+    private listingsService: ListingsService,
+    private geocodingService: GeocodingService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'List active listings with filters' })
@@ -174,6 +180,55 @@ export class ListingsController {
     return {
       success: true,
       data: image,
+      timestamp: new Date(),
+    };
+  }
+
+  @Get('nearby')
+  @ApiOperation({ summary: 'Get listings within radius (spatial search)' })
+  async getNearbyListings(
+    @Query('lat', new ParseFloatPipe()) lat: number,
+    @Query('lng', new ParseFloatPipe()) lng: number,
+    @Query('radius', new ParseIntPipe({ optional: true })) radius: number = 5,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
+  ) {
+    const listings = await this.listingsService.findAll({}, 1, 1000);
+    const nearby = await this.geocodingService.searchNearby(
+      lat,
+      lng,
+      radius,
+      listings.data,
+    );
+    return {
+      success: true,
+      data: nearby.slice(0, limit),
+      count: nearby.length,
+      timestamp: new Date(),
+    };
+  }
+
+  @Get(':id/coordinates')
+  @ApiOperation({ summary: 'Get listing coordinates' })
+  async getCoordinates(@Param('id', new ParseIntPipe()) id: number) {
+    const listing = await this.listingsService.findById(id);
+    return {
+      success: true,
+      data: {
+        id: listing.id,
+        coordinates: listing.getCoordinates(),
+        address: listing.addressGeo,
+      },
+      timestamp: new Date(),
+    };
+  }
+
+  @Post('geocode')
+  @ApiOperation({ summary: 'Forward geocode address' })
+  async geocodeAddress(@Body() body: { address: string }) {
+    const result = await this.geocodingService.forwardGeocode(body.address);
+    return {
+      success: !!result,
+      data: result,
       timestamp: new Date(),
     };
   }
