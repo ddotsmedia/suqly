@@ -5,7 +5,6 @@ import {
   removeFromWishlist,
   createWishlistShareLink,
   deleteWishlistShareLink,
-  checkIsInWishlist,
   exportWishlistCSV,
 } from '@/lib/api';
 import { useWishlistStore } from '@/store/wishlist';
