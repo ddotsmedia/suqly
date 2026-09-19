@@ -72,16 +72,31 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts 2>/dev/null
 
-          ssh -i ~/.ssh/id_rsa -p $VPS_PORT $VPS_USER@$VPS_HOST << 'EOF'
+          ssh -i ~/.ssh/id_rsa -p $VPS_PORT $VPS_USER@$VPS_HOST bash -s "$REGISTRY_USERNAME" "$REGISTRY_TOKEN" << 'EOF'
             set -e
+            REGISTRY_USERNAME="$1"
+            REGISTRY_TOKEN="$2"
+
             cd /opt/suqly
-            docker login ghcr.io -u $REGISTRY_USERNAME -p $REGISTRY_TOKEN
+            echo "Logging in to Docker registry..."
+            echo "$REGISTRY_TOKEN" | docker login ghcr.io -u "$REGISTRY_USERNAME" --password-stdin
+
+            echo "Pulling latest images..."
             docker-compose -f docker-compose.prod.yml pull
+
+            echo "Stopping old containers..."
             docker-compose -f docker-compose.prod.yml down
+
+            echo "Starting P2.7 containers..."
             docker-compose -f docker-compose.prod.yml up -d
-            sleep 5
-            docker-compose -f docker-compose.prod.yml logs backend | grep "Listening on port" || exit 1
+
+            echo "Waiting for services..."
+            sleep 10
+
+            echo "Checking backend health..."
             curl -f http://localhost:3001/health || exit 1
+
+            echo "Deployment successful!"
           EOF
 
       - name: Health Check
