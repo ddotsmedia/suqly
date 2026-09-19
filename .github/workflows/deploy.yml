@@ -64,18 +64,23 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
           VPS_PORT: ${{ secrets.VPS_PORT }}
+          REGISTRY_USERNAME: ${{ github.actor }}
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p ~/.ssh
           echo "$VPS_SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts
+          ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts 2>/dev/null
 
           ssh -i ~/.ssh/id_rsa -p $VPS_PORT $VPS_USER@$VPS_HOST << 'EOF'
-            cd /home/$VPS_USER/suqly
+            set -e
+            cd /opt/suqly
+            docker login ghcr.io -u $REGISTRY_USERNAME -p $REGISTRY_TOKEN
             docker-compose -f docker-compose.prod.yml pull
+            docker-compose -f docker-compose.prod.yml down
             docker-compose -f docker-compose.prod.yml up -d
-            docker-compose -f docker-compose.prod.yml exec -T backend npm run typeorm migration:run
-            sleep 10
+            sleep 5
+            docker-compose -f docker-compose.prod.yml logs backend | grep "Listening on port" || exit 1
             curl -f http://localhost:3001/health || exit 1
           EOF
 

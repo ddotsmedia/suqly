@@ -49,10 +49,8 @@ services:
       - suqly
 
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile.backend
-    image: suqly-backend:latest
+    image: ghcr.io/ddotsmedia/suqly-backend:latest
+    pull_policy: always
     depends_on:
       postgres:
         condition: service_healthy
@@ -101,10 +99,8 @@ services:
         max-file: "3"
 
   frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    image: suqly-frontend:latest
+    image: ghcr.io/ddotsmedia/suqly-frontend:latest
+    pull_policy: always
     depends_on:
       - backend
     environment:
