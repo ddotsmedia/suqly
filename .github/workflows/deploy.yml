@@ -101,7 +101,7 @@ jobs:
           # Copy deploy script and execute with environment variables
           ssh -i ~/.ssh/id_rsa -p $VPS_PORT $VPS_USER@$VPS_HOST "mkdir -p /tmp/suqly"
 
-          scp -P $VPS_PORT scripts/deploy.sh $VPS_USER@$VPS_HOST:/tmp/suqly/
+          scp -i ~/.ssh/id_rsa -P $VPS_PORT scripts/deploy.sh $VPS_USER@$VPS_HOST:/tmp/suqly/
 
           ssh -i ~/.ssh/id_rsa -p $VPS_PORT $VPS_USER@$VPS_HOST \
             "DB_USER=$DB_USER \
