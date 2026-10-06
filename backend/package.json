@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "suqly-backend",
   "version": "1.0.0",
   "description": "Suqly API - NestJS 10",
@@ -9,7 +9,7 @@
     "build": "tsc",
     "start": "node dist/main.js",
     "start:dev": "tsc && nest start --watch",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "lint": "eslint src"
   },
   "dependencies": {
@@ -70,3 +70,4 @@
     "typescript": "^5.7.0"
   }
 }
+

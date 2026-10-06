@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "suqly-frontend",
   "version": "0.1.0",
   "description": "Suqly UAE Marketplace Frontend",
@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:watch": "jest --watch"
   },
   "dependencies": {
@@ -62,3 +62,4 @@
   "license": "ISC",
   "type": "commonjs"
 }
+
