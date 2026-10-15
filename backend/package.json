@@ -10,7 +10,7 @@
     "start": "node dist/main.js",
     "start:dev": "tsc && nest start --watch",
     "test": "jest --passWithNoTests",
-    "lint": "eslint src || true"
+    "lint": "eslint src --ext .ts || true"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.126.0",
