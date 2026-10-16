@@ -111,7 +111,7 @@ export class PricePredictionService {
     suggestedPrice = Math.round(suggestedPrice / 10) * 10;
 
     // Confidence based on number of comparables
-    let confidence = Math.min(similarListings.length / 50, 1.0) * 0.8 + 0.2;
+    const confidence = Math.min(similarListings.length / 50, 1.0) * 0.8 + 0.2;
 
     return {
       suggestedPrice: Math.round(suggestedPrice),
