@@ -39,11 +39,9 @@ jobs:
 
       - name: Lint backend
         run: npm run lint --workspace=backend
-        continue-on-error: true
 
       - name: Lint frontend
         run: npm run lint --workspace=frontend
-        continue-on-error: true
 
   test:
     needs: setup
@@ -95,11 +93,9 @@ jobs:
           REDIS_HOST: localhost
           REDIS_PORT: 6379
         run: npm run test --workspace=backend
-        continue-on-error: true
 
       - name: Test frontend
         run: npm run test --workspace=frontend
-        continue-on-error: true
 
   build:
     needs: [lint, test]
@@ -178,6 +174,8 @@ jobs:
     needs: [build, security]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
     steps:
       - uses: actions/checkout@v4
 
