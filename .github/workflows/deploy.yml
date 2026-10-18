@@ -5,6 +5,12 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type DEPLOY to ship this main commit to production'
+        required: false
+        default: ''
 
 jobs:
   setup:
@@ -125,29 +131,32 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push backend image
+      # Images are tagged by commit SHA only. Pull requests build but never push,
+      # so a PR build can never overwrite what production runs.
+      - name: Build backend image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile.backend
-          push: true
-          tags: ghcr.io/ddotsmedia/suqly/backend:latest
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ghcr.io/ddotsmedia/suqly/backend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build and push frontend image
+      - name: Build frontend image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile.frontend
-          push: true
-          tags: ghcr.io/ddotsmedia/suqly/frontend:latest
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ghcr.io/ddotsmedia/suqly/frontend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -170,16 +179,23 @@ jobs:
         run: npm audit --audit-level=moderate || true
         continue-on-error: true
 
+  # Production deploy: manual only (workflow_dispatch on main, typed confirmation,
+  # and approval by a reviewer of the "production" environment).
+  # It never runs on push. It deploys only the backend and frontend services,
+  # pinned to this commit's SHA, and rolls back to the previous tag if health fails.
   deploy:
     needs: [build, security]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.confirm == 'DEPLOY'
     environment:
       name: production
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to VPS with Docker
+      - name: Deploy to VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
@@ -187,61 +203,78 @@ jobs:
           VPS_KEY_B64: ${{ secrets.VPS_SSH_KEY_B64 }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GHCR_USER: ${{ github.actor }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          set -e
+          set -euo pipefail
           mkdir -p ~/.ssh
-          printf '%s' "$VPS_KEY_B64" | base64 -d > ~/.ssh/deploy_key
+          printf '%s' "$VPS_KEY_B64" | tr -d ' \r\n' | base64 -d > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          SSH="ssh -i $HOME/.ssh/deploy_key -p $VPS_PORT -o StrictHostKeyChecking=accept-new -o BatchMode=yes $VPS_USER@$VPS_HOST"
+          SSH_OPTS=(-i "$HOME/.ssh/deploy_key" -p "$VPS_PORT" -o StrictHostKeyChecking=accept-new -o BatchMode=yes)
+          SCP_OPTS=(-i "$HOME/.ssh/deploy_key" -P "$VPS_PORT" -o StrictHostKeyChecking=accept-new -o BatchMode=yes)
+          TARGET="$VPS_USER@$VPS_HOST"
 
           echo "🔐 Checking SSH access..."
-          $SSH 'echo "connected to $(hostname)"'
+          ssh "${SSH_OPTS[@]}" "$TARGET" 'echo "connected to $(hostname)"'
 
-          echo "🐳 Logging in to ghcr.io on VPS..."
-          printf '%s' "$GHCR_TOKEN" | $SSH "docker login ghcr.io -u '$GHCR_USER' --password-stdin"
+          echo "📄 Copying the compose file from this commit to the VPS..."
+          scp "${SCP_OPTS[@]}" docker-compose.prod.yml "$TARGET:/opt/suqly/docker-compose.prod.new.yml"
 
-          echo "🚀 Deploying on VPS..."
-          $SSH 'bash -s' <<'REMOTE'
-          set -e
+          echo "🚀 Deploying image tag $IMAGE_TAG on the VPS..."
+          printf '%s' "$GHCR_TOKEN" | ssh "${SSH_OPTS[@]}" "$TARGET" "docker login ghcr.io -u '$GHCR_USER' --password-stdin >/dev/null"
+          ssh "${SSH_OPTS[@]}" "$TARGET" "IMAGE_TAG='$IMAGE_TAG' bash -s" <<'REMOTE'
+          set -euo pipefail
           cd /opt/suqly
+          COMPOSE="docker compose -f docker-compose.prod.yml"
+          export IMAGE_TAG
 
-          echo "📥 Pulling latest images..."
-          docker pull ghcr.io/ddotsmedia/suqly/backend:latest
-          docker pull ghcr.io/ddotsmedia/suqly/frontend:latest
-          docker-compose -f docker-compose.prod.yml pull
+          PREV_TAG=$(cat .deployed_tag 2>/dev/null || true)
+          echo "Previous tag: ${PREV_TAG:-none}"
 
-          echo "🛑 Stopping old containers..."
-          docker-compose -f docker-compose.prod.yml down
+          # Replace the compose file, keeping the old one for reference.
+          cp -f docker-compose.prod.yml docker-compose.prev.yml 2>/dev/null || true
+          mv -f docker-compose.prod.new.yml docker-compose.prod.yml
+          $COMPOSE config -q
 
-          echo "▶️ Starting P2.7 containers..."
-          docker-compose -f docker-compose.prod.yml up -d
+          # Health is read from Docker itself, not from a host port.
+          wait_healthy() {
+            for svc in backend frontend; do
+              cid=$($COMPOSE ps -q "$svc")
+              if [ -z "$cid" ]; then echo "❌ $svc has no container"; return 1; fi
+              status=""
+              for _ in $(seq 1 45); do
+                status=$(docker inspect -f '{{.State.Health.Status}}' "$cid" 2>/dev/null || echo unknown)
+                [ "$status" = "healthy" ] && break
+                sleep 4
+              done
+              if [ "$status" != "healthy" ]; then
+                echo "❌ $svc is $status after 3 minutes"
+                docker logs --tail 40 "$cid" || true
+                return 1
+              fi
+              echo "✅ $svc is healthy"
+            done
+          }
 
-          echo "⏳ Waiting for services to be ready..."
-          sleep 10
-
-          echo "❓ Checking backend health at http://127.0.0.1:3021/health..."
-          max_attempts=30
-          attempt=0
-          while [ $attempt -lt $max_attempts ]; do
-            if curl -sf http://127.0.0.1:3021/health > /dev/null; then
-              echo "✅ Backend is healthy"
-              break
+          rollback() {
+            echo "⏪ Rolling back..."
+            if [ -n "$PREV_TAG" ]; then
+              IMAGE_TAG="$PREV_TAG" $COMPOSE up -d --no-deps --no-build backend frontend || true
+            else
+              echo "⚠️ No previous tag recorded; nothing to roll back to."
             fi
-            attempt=$((attempt + 1))
-            if [ $attempt -lt $max_attempts ]; then
-              echo "⚠️  Health check attempt $attempt/$max_attempts failed, retrying..."
-              sleep 2
-            fi
-          done
-
-          if [ $attempt -eq $max_attempts ]; then
-            echo "❌ Backend failed to become healthy after $max_attempts attempts"
             exit 1
+          }
+
+          if ! ( $COMPOSE pull backend frontend \
+                 && $COMPOSE up -d --no-deps --no-build backend frontend \
+                 && wait_healthy ); then
+            rollback
           fi
 
-          echo "📊 Running containers..."
-          docker-compose -f docker-compose.prod.yml ps
-          echo "✅ Deployment complete!"
+          echo "$IMAGE_TAG" > .deployed_tag
+          $COMPOSE ps
+          docker logout ghcr.io >/dev/null 2>&1 || true
+          echo "✅ Deployment complete: $IMAGE_TAG"
           REMOTE
 
       - name: Verify public endpoint
@@ -251,5 +284,5 @@ jobs:
           if curl -sf https://suqly.com/api/health > /dev/null; then
             echo "✅ Public health endpoint is accessible"
           else
-            echo "⚠️ Could not reach public health endpoint, but VPS deployment succeeded"
+            echo "⚠️ Could not reach public health endpoint. Check the site manually."
           fi
