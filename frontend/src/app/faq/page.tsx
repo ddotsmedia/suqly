@@ -33,7 +33,7 @@ const FAQS = [
   },
   {
     q: 'How do I edit or remove my listing?',
-    a: 'Go to your seller dashboard. From there you can edit or delete your listings.',
+    a: 'Manage your listings from your seller dashboard.',
   },
   {
     q: 'What are seller plans?',
