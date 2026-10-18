@@ -28,7 +28,7 @@ const TOPICS = [
   },
   {
     title: 'Managing listings',
-    text: 'Edit, pause or remove your listings from your seller dashboard.',
+    text: 'Manage your listings from your seller dashboard.',
     links: [{ label: 'Seller dashboard', href: '/seller/dashboard' }],
   },
 ];
