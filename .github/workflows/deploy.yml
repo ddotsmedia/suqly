@@ -230,10 +230,23 @@ jobs:
           PREV_TAG=$(cat .deployed_tag 2>/dev/null || true)
           echo "Previous tag: ${PREV_TAG:-none}"
 
-          # Replace the compose file, keeping the old one for reference.
+          # Validate the new file and check prerequisites before changing anything.
+          docker compose -f docker-compose.prod.new.yml config -q
+          for svc in postgres redis opensearch; do
+            if [ -z "$($COMPOSE ps -q --status running "$svc")" ]; then
+              echo "❌ $svc is not running. Refusing to deploy."
+              exit 1
+            fi
+          done
+          PORT="${BACKEND_HOST_PORT:-3023}"
+          if [ -z "$($COMPOSE ps -q --status running backend)" ] && ss -ltn | awk '{print $4}' | grep -qE ":${PORT}\$"; then
+            echo "❌ port $PORT is already used by another process. Refusing to deploy."
+            exit 1
+          fi
+
+          # Keep the previous compose file for reference, then switch to the new one.
           cp -f docker-compose.prod.yml docker-compose.prev.yml 2>/dev/null || true
           mv -f docker-compose.prod.new.yml docker-compose.prod.yml
-          $COMPOSE config -q
 
           # Health is read from Docker itself, not from a host port.
           wait_healthy() {
@@ -273,9 +286,20 @@ jobs:
 
           echo "$IMAGE_TAG" > .deployed_tag
           $COMPOSE ps
-          docker logout ghcr.io >/dev/null 2>&1 || true
           echo "✅ Deployment complete: $IMAGE_TAG"
           REMOTE
+
+      # Runs even on failure, so the GHCR token never stays stored on the VPS.
+      - name: Log out of ghcr.io on VPS
+        if: always()
+        continue-on-error: true
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT || 22 }}
+        run: |
+          [ -f ~/.ssh/deploy_key ] || exit 0
+          ssh -i "$HOME/.ssh/deploy_key" -p "$VPS_PORT" -o BatchMode=yes "$VPS_USER@$VPS_HOST" 'docker logout ghcr.io >/dev/null 2>&1 || true'
 
       - name: Verify public endpoint
         run: |
