@@ -1,4 +1,6 @@
-version: '3.8'
+# Production stack. Deployed by .github/workflows/deploy.yml, which copies this file
+# to /opt/suqly and starts only the backend and frontend services (--no-deps).
+# Images are pinned by commit SHA through IMAGE_TAG; there is no "latest" fallback.
 
 services:
   postgres:
@@ -21,7 +23,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -38,7 +40,7 @@ services:
       - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_PASSWORD}
       - plugins.security.disabled=true
     ports:
-      - "9200:9200"
+      - "127.0.0.1:9200:9200"
     healthcheck:
       test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
@@ -49,8 +51,7 @@ services:
       - suqly
 
   backend:
-    image: ghcr.io/ddotsmedia/suqly-backend:latest
-    pull_policy: always
+    image: ghcr.io/ddotsmedia/suqly/backend:${IMAGE_TAG:?IMAGE_TAG must be set}
     depends_on:
       postgres:
         condition: service_healthy
@@ -82,7 +83,9 @@ services:
       SENTRY_DSN: ${SENTRY_DSN}
       PORT: 3001
     ports:
-      - "127.0.0.1:3021:3001"
+      # Host port is configurable. 3021 is held by a stale process on the VPS,
+      # so the default is 3023. Confirm the port is free before first deploy.
+      - "127.0.0.1:${BACKEND_HOST_PORT:-3023}:3001"
     healthcheck:
       test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:3001/health || exit 1"]
       interval: 30s
@@ -99,8 +102,7 @@ services:
         max-file: "3"
 
   frontend:
-    image: ghcr.io/ddotsmedia/suqly-frontend:latest
-    pull_policy: always
+    image: ghcr.io/ddotsmedia/suqly/frontend:${IMAGE_TAG:?IMAGE_TAG must be set}
     depends_on:
       - backend
     environment:
