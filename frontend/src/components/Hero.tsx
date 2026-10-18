@@ -61,7 +61,7 @@ export default function Hero() {
               <span>→</span>
             </Link>
             <Link
-              href="/sell"
+              href="/auth"
               className="px-8 py-3 bg-white text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-50 font-semibold transition-all"
             >
               Start Selling

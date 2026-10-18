@@ -33,7 +33,7 @@ export default function Header() {
             <Link href="/listings" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Browse
             </Link>
-            <Link href="/sell" className="text-gray-700 hover:text-blue-600 font-medium transition">
+            <Link href="/auth" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Sell
             </Link>
             <Link href="/messages" className="text-gray-700 hover:text-blue-600 font-medium transition">
