@@ -86,6 +86,15 @@ export class ListingsController {
     };
   }
 
+  @Get('mine')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List all of the signed-in user\'s listings, any status' })
+  async getMine(@Request() req: any) {
+    const listings = await this.listingsService.findByUser(req.user.id);
+    return { success: true, data: listings, timestamp: new Date() };
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get listing by ID' })
   async getListing(@Param('id') id: string) {

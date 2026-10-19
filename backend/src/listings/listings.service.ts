@@ -43,6 +43,13 @@ export class ListingsService {
     return this.findById(savedListing.id);
   }
 
+  async findByUser(userId: number): Promise<Listing[]> {
+    return this.listingsRepository.find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async findAll(filters: any, page = 1, limit = 20): Promise<any> {
     let query = this.listingsRepository.createQueryBuilder('listing')
       .leftJoinAndSelect('listing.user', 'user')

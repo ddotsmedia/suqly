@@ -31,11 +31,20 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { email } });
   }
 
+  // Only profile fields are editable; role, password and verification flags are not.
   async updateUser(
     id: number,
     updateData: Partial<User>,
   ): Promise<User> {
-    await this.usersRepository.update(id, updateData);
+    const { displayName, bio, avatarUrl, language } = updateData;
+    const allowed: Partial<User> = {};
+    if (displayName !== undefined) allowed.displayName = displayName;
+    if (bio !== undefined) allowed.bio = bio;
+    if (avatarUrl !== undefined) allowed.avatarUrl = avatarUrl;
+    if (language !== undefined) allowed.language = language;
+    if (Object.keys(allowed).length) {
+      await this.usersRepository.update(id, allowed);
+    }
     return this.findById(id);
   }
 
