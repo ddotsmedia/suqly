@@ -1,13 +1,15 @@
 import { Controller, Post, Get, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
+import { JwtGuard } from '../auth/jwt.guard';
 
 @Controller('reviews')
 export class ReviewsController {
   constructor(private reviewsService: ReviewsService) {}
 
   @Post()
+  @UseGuards(JwtGuard)
   async create(@Request() req, @Body() dto: { listingId: number; rating: number; comment: string }) {
-    const reviewerId = req.user?.id || 1;
+    const reviewerId = req.user.id;
     const review = await this.reviewsService.create(reviewerId, dto.listingId, dto.rating, dto.comment);
     return { success: true, data: review };
   }

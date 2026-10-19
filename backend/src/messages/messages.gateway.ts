@@ -9,6 +9,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
+import { JwtService } from '@nestjs/jwt';
 import { MessagesService } from './messages.service';
 
 interface AuthenticatedSocket extends Socket {
@@ -29,14 +30,26 @@ export class MessagesGateway
 
   private users = new Map<number, string>();
 
-  constructor(private messagesService: MessagesService) {}
+  constructor(
+    private messagesService: MessagesService,
+    private jwtService: JwtService,
+  ) {}
 
   afterInit(server: any) {
     console.log('🔌 WebSocket Server initialized');
   }
 
   handleConnection(client: AuthenticatedSocket) {
-    console.log(`✅ Client connected: ${client.id}`);
+    const header = client.handshake.headers?.authorization || '';
+    const token = client.handshake.auth?.token || header.replace(/^Bearer /, '');
+    try {
+      const payload = this.jwtService.verify(token);
+      client.userId = payload.sub;
+      console.log(`✅ Client connected: ${client.id}`);
+    } catch {
+      client.emit('error', { message: 'Unauthorized' });
+      client.disconnect(true);
+    }
   }
 
   handleDisconnect(client: AuthenticatedSocket) {
@@ -47,13 +60,12 @@ export class MessagesGateway
   }
 
   @SubscribeMessage('join')
-  handleJoin(
-    @ConnectedSocket() client: AuthenticatedSocket,
-    @MessageBody() data: { userId: number },
-  ) {
-    client.userId = data.userId;
-    this.users.set(data.userId, client.id);
-    client.emit('joined', { userId: data.userId });
+  handleJoin(@ConnectedSocket() client: AuthenticatedSocket) {
+    if (!client.userId) {
+      return client.emit('error', { message: 'Not authenticated' });
+    }
+    this.users.set(client.userId, client.id);
+    client.emit('joined', { userId: client.userId });
   }
 
   @SubscribeMessage('message')
