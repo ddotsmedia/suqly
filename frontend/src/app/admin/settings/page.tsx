@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import FeatureFlagsPanel from '@/components/admin/FeatureFlagsPanel';
 
 export const metadata: Metadata = {
-  title: 'Admin Settings - Suqly',
+  title: 'Admin Settings',
   description: 'Admin panel for managing feature flags and settings',
 };
 

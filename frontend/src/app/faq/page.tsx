@@ -2,7 +2,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export const metadata = {
-  title: 'FAQ - Suqly',
+  title: 'FAQ',
   description: 'Answers to common questions about buying and selling on Suqly.',
 };
 
@@ -41,9 +41,23 @@ const FAQS = [
   },
 ];
 
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQS.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a },
+  })),
+};
+
 export default function FaqPage() {
   return (
     <main className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <Header />
 
       <section className="bg-gradient-to-br from-blue-50 to-purple-50 py-16 px-4">

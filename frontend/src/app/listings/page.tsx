@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { getListings } from '@/lib/api';
@@ -33,13 +34,22 @@ function formatPrice(price: number | null, currency: string) {
 }
 
 export default function ListingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <ListingsContent />
+    </Suspense>
+  );
+}
+
+function ListingsContent() {
+  const searchParams = useSearchParams();
   const [page, setPage] = useState(1);
   const [attempt, setAttempt] = useState(0);
   const [pages, setPages] = useState(1);
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(() => searchParams.get('q') ?? '');
   const [category, setCategory] = useState('all');
   const [sort, setSort] = useState<'newest' | 'price-asc' | 'price-desc'>('newest');
 

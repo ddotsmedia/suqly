@@ -1,8 +1,19 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { FormEvent, useState } from 'react';
 
 export default function Hero() {
+  const router = useRouter();
+  const [term, setTerm] = useState('');
+
+  function handleSearch(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const q = term.trim();
+    router.push(q ? `/listings?q=${encodeURIComponent(q)}` : '/listings');
+  }
+
   return (
     <section className="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 overflow-hidden">
       <div className="absolute inset-0 opacity-30">
@@ -24,18 +35,24 @@ export default function Hero() {
             Discover authentic listings from verified sellers in your neighborhood. Shop with confidence knowing every listing is genuine.
           </p>
 
-          <div className="max-w-2xl mx-auto mb-12">
+          <form onSubmit={handleSearch} role="search" className="max-w-2xl mx-auto mb-12">
             <div className="relative group">
               <input
-                type="text"
+                type="search"
+                value={term}
+                onChange={(e) => setTerm(e.target.value)}
+                aria-label="Search listings"
                 placeholder="Search listings, categories, sellers..."
                 className="w-full px-6 py-4 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-lg shadow-md group-hover:shadow-lg transition-all"
               />
-              <button className="absolute right-3 top-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2.5 rounded-lg hover:shadow-md transition-all font-semibold">
+              <button
+                type="submit"
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2.5 rounded-lg hover:shadow-md transition-all font-semibold"
+              >
                 Search
               </button>
             </div>
-          </div>
+          </form>
 
           <div className="grid grid-cols-3 gap-8 md:gap-12 max-w-2xl mx-auto mb-12">
             <div className="text-center">
