@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { absoluteUrl, CATEGORIES, EMIRATES, fetchAllListings } from '@/lib/site';
+import { absoluteUrl, CATEGORIES, DUBAI_COMMUNITIES, EMIRATES, fetchAllListings } from '@/lib/site';
 
 export const revalidate = 3600;
 
@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticPages: MetadataRoute.Sitemap = [
     { url: absoluteUrl('/'), lastModified: now, changeFrequency: 'weekly', priority: 1 },
-    ...['/listings', '/sell', '/pricing', '/faq', '/help', '/safety'].map((path) => ({
+    ...['/listings', '/sell', '/pricing', '/faq', '/help', '/safety', '/about'].map((path) => ({
       url: absoluteUrl(path),
       lastModified: now,
       changeFrequency: 'weekly' as const,
@@ -40,6 +40,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   const listings = await fetchAllListings();
+
+  // Only areas that have listings, to match the noindex rule on community pages.
+  const communityPages: MetadataRoute.Sitemap = DUBAI_COMMUNITIES.filter((c) =>
+    listings.some((l) => l.emirate === 'dubai' && l.community === c.name),
+  ).map((c) => ({
+    url: absoluteUrl(`/communities/${c.slug}`),
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
   const listingPages: MetadataRoute.Sitemap = listings.map((l) => ({
     url: absoluteUrl(`/listings/${l.id}`),
     lastModified: l.updatedAt ? new Date(l.updatedAt) : now,
@@ -47,5 +58,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
-  return [...staticPages, ...categoryPages, ...emiratePages, ...emirateCategoryPages, ...listingPages];
+  return [
+    ...staticPages,
+    ...categoryPages,
+    ...emiratePages,
+    ...emirateCategoryPages,
+    ...communityPages,
+    ...listingPages,
+  ];
 }
