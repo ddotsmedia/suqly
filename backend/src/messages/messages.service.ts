@@ -28,11 +28,15 @@ export class MessagesService {
 
   async getMessagesForListing(
     listingId: number,
+    userId: number,
     page = 1,
     limit = 50,
   ): Promise<any> {
     const [messages, total] = await this.messagesRepository.findAndCount({
-      where: { listingId },
+      where: [
+        { listingId, senderId: userId },
+        { listingId, recipientId: userId },
+      ],
       relations: ['sender', 'recipient'],
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
