@@ -31,8 +31,8 @@ export default function SellPage() {
             List your items, reach buyers across the UAE, and manage every listing from one place.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/auth" className="px-8 py-3 bg-white text-blue-700 rounded-lg font-semibold hover:shadow-lg transition-all">
-              Start selling
+            <Link href="/sell/new" className="px-8 py-3 bg-white text-blue-700 rounded-lg font-semibold hover:shadow-lg transition-all">
+              Post a listing
             </Link>
             <Link href="/pricing" className="px-8 py-3 border-2 border-white rounded-lg font-semibold hover:bg-white hover:text-blue-700 transition-all">
               See seller plans

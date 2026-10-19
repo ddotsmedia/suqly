@@ -269,9 +269,11 @@ export class ListingsController {
     const images = [];
     for (const file of files) {
       const compressed = await this.imageUploadService.validateAndCompressImage(file);
+      const urls = await this.imageUploadService.saveImages(compressed);
       images.push({
         id: compressed.id,
-        filename: compressed.filename,
+        fullUrl: urls.fullUrl,
+        thumbnailUrl: urls.thumbnailUrl,
         sizeBytes: compressed.sizeBytes,
         uploadedAt: new Date(),
       });

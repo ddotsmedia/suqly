@@ -62,10 +62,12 @@ export class ImageUploadService {
         fit: 'cover',
         position: 'center',
       })
+      .webp({ quality: 80 })
       .toBuffer();
 
     const fullBuffer = await sharp(file.buffer)
       .resize(this.fullWidth, undefined, { withoutEnlargement: true })
+      .webp({ quality: 82 })
       .toBuffer();
 
     return {
@@ -107,6 +109,24 @@ export class ImageUploadService {
     } catch (error) {
       throw new BadRequestException('Failed to create upload directory');
     }
+  }
+
+  // Writes both sizes to the uploads folder and returns their public URLs.
+  async saveImages(
+    image: CompressedImage,
+  ): Promise<{ fullUrl: string; thumbnailUrl: string }> {
+    await fs.writeFile(
+      path.join(this.uploadDir, `${image.filename}-thumbnail.webp`),
+      image.thumbnailBuffer,
+    );
+    await fs.writeFile(
+      path.join(this.uploadDir, `${image.filename}-full.webp`),
+      image.fullBuffer,
+    );
+    return {
+      fullUrl: this.getImageUrl(image.filename, 'full'),
+      thumbnailUrl: this.getImageUrl(image.filename, 'thumbnail'),
+    };
   }
 
   getImageUrl(filename: string, type: 'thumbnail' | 'full'): string {
