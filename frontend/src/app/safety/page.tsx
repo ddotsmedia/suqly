@@ -3,7 +3,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export const metadata = {
-  title: 'Safety Tips - Suqly',
+  title: 'Safety Tips',
   description: 'Simple steps to buy and sell safely on Suqly.',
 };
 

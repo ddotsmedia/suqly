@@ -3,7 +3,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export const metadata = {
-  title: 'Help Center - Suqly',
+  title: 'Help Center',
   description: 'Get help with buying, selling and managing your account on Suqly.',
 };
 

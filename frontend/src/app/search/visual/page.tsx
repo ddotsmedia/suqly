@@ -1,7 +1,7 @@
 import VisualSearchUpload from '@/components/VisualSearchUpload';
 
 export const metadata = {
-  title: 'Visual Search - Suqly',
+  title: 'Visual Search',
   description: 'Search for items using images',
 };
 

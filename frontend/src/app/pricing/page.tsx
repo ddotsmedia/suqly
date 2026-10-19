@@ -3,7 +3,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export const metadata = {
-  title: 'Seller Plans - Suqly',
+  title: 'Seller Plans',
   description: 'Choose a Suqly seller plan. Free and premium options help your listings stand out.',
 };
 
