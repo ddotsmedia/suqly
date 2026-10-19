@@ -30,6 +30,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  const emirateCategoryPages: MetadataRoute.Sitemap = EMIRATES.flatMap((e) =>
+    CATEGORIES.map((c) => ({
+      url: absoluteUrl(`/emirates/${e.slug}/${c.slug}`),
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    })),
+  );
+
   const listings = await fetchAllListings();
   const listingPages: MetadataRoute.Sitemap = listings.map((l) => ({
     url: absoluteUrl(`/listings/${l.id}`),
@@ -38,5 +47,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
-  return [...staticPages, ...categoryPages, ...emiratePages, ...listingPages];
+  return [...staticPages, ...categoryPages, ...emiratePages, ...emirateCategoryPages, ...listingPages];
 }
