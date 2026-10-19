@@ -60,7 +60,7 @@ export default async function CategoryPage({
         <h2 className="text-xl font-semibold text-gray-900 mb-3">Browse {category.name} by emirate</h2>
         <div className="flex flex-wrap gap-3">
           {EMIRATES.map((e) => (
-            <Link key={e.slug} href={`/emirates/${e.slug}`} className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:border-blue-600 hover:text-blue-600">
+            <Link key={e.slug} href={`/emirates/${e.slug}/${category.slug}`} className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:border-blue-600 hover:text-blue-600">
               {e.name}
             </Link>
           ))}

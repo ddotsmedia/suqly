@@ -30,6 +30,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  const emirateCategoryPages: MetadataRoute.Sitemap = EMIRATES.flatMap((e) =>
+    CATEGORIES.map((c) => ({
+      url: absoluteUrl(`/emirates/${e.slug}/${c.slug}`),
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    })),
+  );
+
   const listings = await fetchAllListings();
 
   // Only areas that have listings, to match the noindex rule on community pages.
@@ -49,5 +58,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
-  return [...staticPages, ...categoryPages, ...emiratePages, ...communityPages, ...listingPages];
+  return [
+    ...staticPages,
+    ...categoryPages,
+    ...emiratePages,
+    ...emirateCategoryPages,
+    ...communityPages,
+    ...listingPages,
+  ];
 }

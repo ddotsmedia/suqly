@@ -2,6 +2,7 @@ import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import FeaturedListings from '@/components/FeaturedListings';
 import CategoriesGrid from '@/components/CategoriesGrid';
+import EmiratesGrid from '@/components/EmiratesGrid';
 import HomeTools from '@/components/HomeTools';
 import Footer from '@/components/Footer';
 
@@ -12,6 +13,7 @@ export default function Home() {
       <Hero />
       <HomeTools />
       <CategoriesGrid />
+      <EmiratesGrid />
       <FeaturedListings />
       <Footer />
     </main>
