@@ -57,10 +57,10 @@ export default async function EmiratePage({
       </section>
 
       <section className="max-w-6xl mx-auto px-4 pb-12">
-        <h2 className="text-xl font-semibold text-gray-900 mb-3">Browse by category</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-3">Browse by category in {emirate.name}</h2>
         <div className="flex flex-wrap gap-3">
           {CATEGORIES.map((c) => (
-            <Link key={c.slug} href={`/categories/${c.slug}`} className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:border-blue-600 hover:text-blue-600">
+            <Link key={c.slug} href={`/emirates/${emirate.slug}/${c.slug}`} className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:border-blue-600 hover:text-blue-600">
               {c.name}
             </Link>
           ))}
