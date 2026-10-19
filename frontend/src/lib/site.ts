@@ -22,6 +22,24 @@ export const EMIRATES = [
   { slug: 'al_ain', name: 'Al Ain' },
 ] as const;
 
+// Dubai areas. `name` must match the community value listings are saved with.
+export const DUBAI_COMMUNITIES = [
+  { slug: 'dubai-marina', name: 'Dubai Marina' },
+  { slug: 'downtown-dubai', name: 'Downtown Dubai' },
+  { slug: 'business-bay', name: 'Business Bay' },
+  { slug: 'jumeirah-village-circle', name: 'Jumeirah Village Circle' },
+  { slug: 'dubai-hills-estate', name: 'Dubai Hills Estate' },
+  { slug: 'al-barsha', name: 'Al Barsha' },
+  { slug: 'jumeirah', name: 'Jumeirah' },
+  { slug: 'deira', name: 'Deira' },
+  { slug: 'al-quoz', name: 'Al Quoz' },
+  { slug: 'dubai-silicon-oasis', name: 'Dubai Silicon Oasis' },
+] as const;
+
+export function findDubaiCommunity(slug: string) {
+  return DUBAI_COMMUNITIES.find((c) => c.slug === slug);
+}
+
 export function absoluteUrl(path: string): string {
   return `${SITE_URL}${path}`;
 }
@@ -82,12 +100,13 @@ export async function fetchAllListings(): Promise<ListingSummary[]> {
 
 // Used by category and emirate pages.
 export async function fetchListingsFiltered(
-  filters: { category?: string; emirate?: string },
+  filters: { category?: string; emirate?: string; community?: string },
   limit = 24,
 ): Promise<ListingSummary[]> {
   const params = new URLSearchParams({ page: '1', limit: String(limit) });
   if (filters.category) params.set('category', filters.category);
   if (filters.emirate) params.set('emirate', filters.emirate);
+  if (filters.community) params.set('community', filters.community);
   try {
     const res = await fetch(`${API_URL}/listings?${params.toString()}`, {
       next: { revalidate: 300 },
