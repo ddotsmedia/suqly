@@ -39,6 +39,8 @@ export default function ListingDetailContent() {
             <img
               src={listing.images[0].imageUrl}
               alt={listing.title}
+              fetchPriority="high"
+              decoding="async"
               className="w-full h-96 object-cover rounded-lg"
             />
           )}
