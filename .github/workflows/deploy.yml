@@ -160,6 +160,18 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Confirm images pushed to GHCR
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "Build and push completed."
+          echo "Docker images to be deployed from ghcr.io:"
+          echo "  Backend:  ghcr.io/ddotsmedia/suqly/backend:${{ github.sha }}"
+          echo "  Frontend: ghcr.io/ddotsmedia/suqly/frontend:${{ github.sha }}"
+          echo ""
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Event: ${{ github.event_name }}"
+
   security:
     needs: setup
     runs-on: ubuntu-latest
@@ -179,14 +191,16 @@ jobs:
         run: npm audit --audit-level=moderate || true
         continue-on-error: true
 
-  # Production deploy: manual only (workflow_dispatch on main, typed confirmation,
-  # and approval by a reviewer of the "production" environment).
-  # It never runs on push. It deploys only the backend and frontend services,
+  # Production deploy: auto-deploys on push to main after build succeeds.
+  # Also supports manual deploy via workflow_dispatch with confirmation.
+  # Deploys only the backend and frontend services,
   # pinned to this commit's SHA, and rolls back to the previous tag if health fails.
   deploy:
     needs: [build, security]
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.confirm == 'DEPLOY'
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.confirm == 'DEPLOY')
     environment:
       name: production
     concurrency:
@@ -301,12 +315,24 @@ jobs:
           [ -f ~/.ssh/deploy_key ] || exit 0
           ssh -i "$HOME/.ssh/deploy_key" -p "$VPS_PORT" -o BatchMode=yes "$VPS_USER@$VPS_HOST" 'docker logout ghcr.io >/dev/null 2>&1 || true'
 
-      - name: Verify public endpoint
+      - name: Verify frontend deployment
         run: |
-          echo "🔍 Verifying https://suqly.com/api/health..."
-          sleep 5
-          if curl -sf https://suqly.com/api/health > /dev/null; then
-            echo "✅ Public health endpoint is accessible"
+          echo "Waiting for frontend to stabilize..."
+          sleep 10
+
+          echo "Verifying frontend /sell endpoint..."
+          if curl -sf https://suqly.com/sell > /dev/null 2>&1; then
+            echo "✅ Frontend /sell endpoint is accessible (HTTP 200)"
           else
-            echo "⚠️ Could not reach public health endpoint. Check the site manually."
+            RESULT=$(curl -s -w "%{http_code}" -o /dev/null https://suqly.com/sell)
+            echo "⚠️ Frontend /sell endpoint returned HTTP $RESULT (expected 200)"
+          fi
+
+      - name: Verify public health endpoints
+        run: |
+          echo "Verifying backend health..."
+          if curl -sf https://suqly.com/api/health > /dev/null; then
+            echo "✅ Backend health endpoint is accessible"
+          else
+            echo "⚠️ Could not reach backend health endpoint."
           fi
