@@ -41,6 +41,7 @@ export class ListingsController {
   @ApiOperation({ summary: 'List active listings with filters' })
   async getListings(
     @Query('category') category?: string,
+    @Query('subcategory') subcategory?: string,
     @Query('emirate') emirate?: string,
     @Query('community') community?: string,
     @Query('priceMin') priceMin?: string,
@@ -50,6 +51,7 @@ export class ListingsController {
   ) {
     const filters = {
       category,
+      subcategory,
       emirate,
       community,
       priceMin: priceMin ? parseFloat(priceMin) : undefined,
