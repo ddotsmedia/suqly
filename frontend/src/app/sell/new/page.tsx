@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { apiCall } from '@/lib/api';
 import { CATEGORIES, DUBAI_COMMUNITIES, EMIRATES } from '@/lib/site';
+import { subcategoriesFor } from '@/lib/subcategories';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 const MAX_PHOTOS = 10;
@@ -17,6 +18,7 @@ export default function NewListingPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<string>(CATEGORIES[0].slug);
+  const [subcategory, setSubcategory] = useState<string>('');
   const [emirate, setEmirate] = useState<string>(EMIRATES[0].slug);
   const [community, setCommunity] = useState('');
   const [price, setPrice] = useState('');
@@ -60,6 +62,7 @@ export default function NewListingPage() {
           title,
           description,
           category,
+          subcategory: subcategory || null,
           emirate,
           community: community || undefined,
           price: Number(price),
@@ -130,11 +133,19 @@ export default function NewListingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <label className="block">
               <span className="text-sm font-semibold text-gray-700">Category</span>
-              <select value={category} onChange={(e) => setCategory(e.target.value)}
+              <select value={category} onChange={(e) => { setCategory(e.target.value); setSubcategory(''); }}
                 className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2">
                 {CATEGORIES.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
               </select>
             </label>
+                <label className="block">
+                  <span className="text-sm font-semibold text-gray-700">Subcategory</span>
+                  <select value={subcategory} onChange={(e) => setSubcategory(e.target.value)}
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2">
+                    <option value="">Select a subcategory</option>
+                    {subcategoriesFor(category).map((s) => <option key={s.slug} value={s.slug}>{s.name}</option>)}
+                  </select>
+                </label>
             <label className="block">
               <span className="text-sm font-semibold text-gray-700">Price (AED)</span>
               <input required type="number" min={0} value={price} onChange={(e) => setPrice(e.target.value)}

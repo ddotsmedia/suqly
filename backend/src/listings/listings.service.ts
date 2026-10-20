@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,6 +12,7 @@ import { UsersService } from '../users/users.service';
 import { ImageCompressionService } from './image-compression.service';
 import { ModerationService } from '../moderation/moderation.service';
 import * as crypto from 'crypto';
+import { isValidSubcategory } from './subcategories';
 
 @Injectable()
 export class ListingsService {
@@ -29,6 +31,10 @@ export class ListingsService {
     createData: any,
   ): Promise<Listing> {
     const user = await this.usersService.findById(userId);
+
+    if (createData.subcategory && !isValidSubcategory(createData.category, createData.subcategory)) {
+      throw new BadRequestException(`Invalid subcategory for category ${createData.category}`);
+    }
 
     // Generate slug
     const listingData = this.listingsRepository.create({
@@ -59,6 +65,12 @@ export class ListingsService {
     if (filters.category) {
       query = query.andWhere('listing.category = :category', {
         category: filters.category,
+      });
+    }
+
+    if (filters.subcategory) {
+      query = query.andWhere('listing.subcategory = :subcategory', {
+        subcategory: filters.subcategory,
       });
     }
 
@@ -154,6 +166,17 @@ export class ListingsService {
 
     if (Object.keys(changes).length === 0) {
       return listing;
+    }
+
+    // A subcategory must belong to the listing's category. If the category changes
+    // without a new subcategory, drop the old one rather than keep a mismatched value.
+    const effectiveCategory = changes.category ?? listing.category;
+    if (changes.category !== undefined && changes.subcategory === undefined && listing.subcategory) {
+      if (!isValidSubcategory(effectiveCategory, listing.subcategory)) changes.subcategory = null;
+    }
+    const effectiveSub = changes.subcategory !== undefined ? changes.subcategory : listing.subcategory;
+    if (effectiveSub && !isValidSubcategory(effectiveCategory, effectiveSub)) {
+      throw new BadRequestException(`Invalid subcategory for category ${effectiveCategory}`);
     }
 
     await this.listingsRepository.update(id, changes);

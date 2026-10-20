@@ -100,11 +100,12 @@ export async function fetchAllListings(): Promise<ListingSummary[]> {
 
 // Used by category and emirate pages.
 export async function fetchListingsFiltered(
-  filters: { category?: string; emirate?: string; community?: string },
+  filters: { category?: string; subcategory?: string; emirate?: string; community?: string },
   limit = 24,
 ): Promise<ListingSummary[]> {
   const params = new URLSearchParams({ page: '1', limit: String(limit) });
   if (filters.category) params.set('category', filters.category);
+  if (filters.subcategory) params.set('subcategory', filters.subcategory);
   if (filters.emirate) params.set('emirate', filters.emirate);
   if (filters.community) params.set('community', filters.community);
   try {
