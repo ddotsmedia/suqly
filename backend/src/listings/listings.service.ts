@@ -140,12 +140,23 @@ export class ListingsService {
       throw new ForbiddenException('Cannot edit other user\'s listing');
     }
 
-    // Regenerate slug if title changed
-    if (updateData.title && updateData.title !== listing.title) {
-      updateData.slug = this.generateSlug(updateData.title);
+    // Only seller-editable fields. Ownership, status, slug and dates are never taken from the request.
+    const editable = ['title', 'description', 'category', 'subcategory', 'emirate', 'community', 'publicLocation', 'price', 'currency'];
+    const changes: Record<string, any> = {};
+    for (const key of editable) {
+      if (updateData[key] !== undefined) changes[key] = updateData[key];
     }
 
-    await this.listingsRepository.update(id, updateData);
+    // Regenerate slug if title changed
+    if (changes.title && changes.title !== listing.title) {
+      changes.slug = this.generateSlug(changes.title);
+    }
+
+    if (Object.keys(changes).length === 0) {
+      return listing;
+    }
+
+    await this.listingsRepository.update(id, changes);
     return this.findById(id);
   }
 
