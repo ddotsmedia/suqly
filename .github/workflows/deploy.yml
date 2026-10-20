@@ -232,7 +232,7 @@ jobs:
 
           # Validate the new file and check prerequisites before changing anything.
           docker compose -f docker-compose.prod.new.yml config -q
-          for svc in postgres redis opensearch; do
+          for svc in postgres redis; do
             if [ -z "$($COMPOSE ps -q --status running "$svc")" ]; then
               echo "❌ $svc is not running. Refusing to deploy."
               exit 1
