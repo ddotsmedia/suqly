@@ -202,6 +202,7 @@ export default function ProfilePage() {
                   {listings.map((l) => (
                     <div key={l.id} className="border rounded p-4">
                       <Link href={`/listings/${l.id}`} className="font-semibold text-blue-600 hover:underline">{l.title}</Link>
+                      <Link href={`/listings/${l.id}/edit`} className="ml-3 text-sm text-blue-600 hover:underline">Edit</Link>
                       <p className="text-sm text-gray-600">
                         {l.status} · {new Date(l.createdAt).toLocaleDateString()}
                       </p>
