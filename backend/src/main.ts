@@ -12,6 +12,10 @@ import { RateLimitGuard } from './common/guards/rate-limit.guard';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  // nginx sits in front of the API and sets X-Forwarded-For, so trust one proxy hop.
+  // Without this, every request is counted against nginx's address.
+  app.set('trust proxy', 1);
+
   // Compressed listing photos written by ImageUploadService.saveImages
   app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
 
