@@ -12,6 +12,21 @@ export default function ListingDetailContent() {
   const [listing, setListing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [reviewsKey, setReviewsKey] = useState(0);
+  const [shareUrl, setShareUrl] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    setShareUrl(window.location.href);
+  }, [id]);
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -62,6 +77,26 @@ export default function ListingDetailContent() {
           <div className="text-2xl font-bold text-green-600 mb-4">
             AED {listing.price}
           </div>
+
+          {shareUrl && (
+            <div className="flex flex-wrap gap-3 mb-6">
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(`${listing.title} - AED ${listing.price} ${shareUrl}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm"
+              >
+                Share on WhatsApp
+              </a>
+              <button
+                type="button"
+                onClick={copyLink}
+                className="px-4 py-2 rounded-lg border text-sm"
+              >
+                {copied ? 'Link copied' : 'Copy link'}
+              </button>
+            </div>
+          )}
 
           <div className="space-y-2 mb-6">
             <p><strong>Category:</strong> {listing.category}</p>
