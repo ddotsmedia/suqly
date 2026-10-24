@@ -49,7 +49,7 @@ services:
       - suqly
 
   backend:
-    image: ghcr.io/ddotsmedia/suqly-backend:latest
+    image: ghcr.io/ddotsmedia/suqly/backend:latest
     pull_policy: always
     depends_on:
       postgres:
@@ -99,7 +99,7 @@ services:
         max-file: "3"
 
   frontend:
-    image: ghcr.io/ddotsmedia/suqly-frontend:latest
+    image: ghcr.io/ddotsmedia/suqly/frontend:latest
     pull_policy: always
     depends_on:
       - backend
