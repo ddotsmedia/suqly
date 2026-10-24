@@ -13,6 +13,29 @@ export class UsersController {
     private sellerStatsService: SellerStatsService,
   ) {}
 
+  @Get('me')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get the signed-in user' })
+  async getMe(@Request() req: any) {
+    const user = await this.usersService.findById(req.user.id);
+    return {
+      success: true,
+      data: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+        displayName: user.displayName,
+        bio: user.bio,
+        avatarUrl: user.avatarUrl,
+        language: user.language,
+        role: user.role,
+      },
+      timestamp: new Date(),
+    };
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get user profile (public)' })
   async getUserProfile(@Param('id') id: string) {

@@ -41,6 +41,7 @@ export class ListingsController {
   @ApiOperation({ summary: 'List active listings with filters' })
   async getListings(
     @Query('category') category?: string,
+    @Query('subcategory') subcategory?: string,
     @Query('emirate') emirate?: string,
     @Query('community') community?: string,
     @Query('priceMin') priceMin?: string,
@@ -50,6 +51,7 @@ export class ListingsController {
   ) {
     const filters = {
       category,
+      subcategory,
       emirate,
       community,
       priceMin: priceMin ? parseFloat(priceMin) : undefined,
@@ -84,6 +86,15 @@ export class ListingsController {
       data: listing,
       timestamp: new Date(),
     };
+  }
+
+  @Get('mine')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List all of the signed-in user\'s listings, any status' })
+  async getMine(@Request() req: any) {
+    const listings = await this.listingsService.findByUser(req.user.id);
+    return { success: true, data: listings, timestamp: new Date() };
   }
 
   @Get(':id')
@@ -260,9 +271,11 @@ export class ListingsController {
     const images = [];
     for (const file of files) {
       const compressed = await this.imageUploadService.validateAndCompressImage(file);
+      const urls = await this.imageUploadService.saveImages(compressed);
       images.push({
         id: compressed.id,
-        filename: compressed.filename,
+        fullUrl: urls.fullUrl,
+        thumbnailUrl: urls.thumbnailUrl,
         sizeBytes: compressed.sizeBytes,
         uploadedAt: new Date(),
       });

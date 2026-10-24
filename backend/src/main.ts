@@ -1,4 +1,6 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
@@ -8,7 +10,10 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { RateLimitGuard } from './common/guards/rate-limit.guard';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Compressed listing photos written by ImageUploadService.saveImages
+  app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
 
   // Sentry initialization (optional if SENTRY_DSN is set)
   if (process.env.SENTRY_DSN) {

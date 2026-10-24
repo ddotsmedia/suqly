@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,6 +12,7 @@ import { UsersService } from '../users/users.service';
 import { ImageCompressionService } from './image-compression.service';
 import { ModerationService } from '../moderation/moderation.service';
 import * as crypto from 'crypto';
+import { isValidSubcategory } from './subcategories';
 
 @Injectable()
 export class ListingsService {
@@ -30,6 +32,10 @@ export class ListingsService {
   ): Promise<Listing> {
     const user = await this.usersService.findById(userId);
 
+    if (createData.subcategory && !isValidSubcategory(createData.category, createData.subcategory)) {
+      throw new BadRequestException(`Invalid subcategory for category ${createData.category}`);
+    }
+
     // Generate slug
     const listingData = this.listingsRepository.create({
       ...createData,
@@ -43,6 +49,13 @@ export class ListingsService {
     return this.findById(savedListing.id);
   }
 
+  async findByUser(userId: number): Promise<Listing[]> {
+    return this.listingsRepository.find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async findAll(filters: any, page = 1, limit = 20): Promise<any> {
     let query = this.listingsRepository.createQueryBuilder('listing')
       .leftJoinAndSelect('listing.user', 'user')
@@ -52,6 +65,12 @@ export class ListingsService {
     if (filters.category) {
       query = query.andWhere('listing.category = :category', {
         category: filters.category,
+      });
+    }
+
+    if (filters.subcategory) {
+      query = query.andWhere('listing.subcategory = :subcategory', {
+        subcategory: filters.subcategory,
       });
     }
 
@@ -133,12 +152,34 @@ export class ListingsService {
       throw new ForbiddenException('Cannot edit other user\'s listing');
     }
 
-    // Regenerate slug if title changed
-    if (updateData.title && updateData.title !== listing.title) {
-      updateData.slug = this.generateSlug(updateData.title);
+    // Only seller-editable fields. Ownership, status, slug and dates are never taken from the request.
+    const editable = ['title', 'description', 'category', 'subcategory', 'emirate', 'community', 'publicLocation', 'price', 'currency'];
+    const changes: Record<string, any> = {};
+    for (const key of editable) {
+      if (updateData[key] !== undefined) changes[key] = updateData[key];
     }
 
-    await this.listingsRepository.update(id, updateData);
+    // Regenerate slug if title changed
+    if (changes.title && changes.title !== listing.title) {
+      changes.slug = this.generateSlug(changes.title);
+    }
+
+    if (Object.keys(changes).length === 0) {
+      return listing;
+    }
+
+    // A subcategory must belong to the listing's category. If the category changes
+    // without a new subcategory, drop the old one rather than keep a mismatched value.
+    const effectiveCategory = changes.category ?? listing.category;
+    if (changes.category !== undefined && changes.subcategory === undefined && listing.subcategory) {
+      if (!isValidSubcategory(effectiveCategory, listing.subcategory)) changes.subcategory = null;
+    }
+    const effectiveSub = changes.subcategory !== undefined ? changes.subcategory : listing.subcategory;
+    if (effectiveSub && !isValidSubcategory(effectiveCategory, effectiveSub)) {
+      throw new BadRequestException(`Invalid subcategory for category ${effectiveCategory}`);
+    }
+
+    await this.listingsRepository.update(id, changes);
     return this.findById(id);
   }
 

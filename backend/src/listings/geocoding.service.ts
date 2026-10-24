@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
@@ -19,7 +20,6 @@ export class GeocodingService {
     }
 
     try {
-      const axios = require('axios');
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`,
       );
@@ -48,7 +48,6 @@ export class GeocodingService {
     }
 
     try {
-      const axios = require('axios');
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`,
       );

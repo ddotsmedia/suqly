@@ -30,13 +30,17 @@ export class MessagesController {
   }
 
   @Get('listing/:listingId')
-  @ApiOperation({ summary: 'Get all messages for a listing' })
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get messages for a listing that the user is part of' })
   async getListingMessages(
     @Param('listingId') listingId: string,
     @Query('page') page?: string,
+    @Request() req?: any,
   ) {
     const result = await this.messagesService.getMessagesForListing(
       parseInt(listingId),
+      req.user.id,
       page ? parseInt(page) : 1,
     );
     return {

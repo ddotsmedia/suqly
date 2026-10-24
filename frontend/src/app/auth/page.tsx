@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button, Input, Alert, Card } from '@/components';
 
 export default function AuthPage() {
-  const [tab, setTab] = useState<'signin' | 'register' | 'admin'>('signin');
+  const [tab, setTab] = useState<'signin' | 'register'>('signin');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [phone, setPhone] = useState('');
@@ -14,8 +14,6 @@ export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [adminEmail, setAdminEmail] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
 
   const handleGetOtp = async () => {
     if (!phone) {
@@ -101,34 +99,6 @@ export default function AuthPage() {
     }
   };
 
-  const handleAdminLogin = async () => {
-    if (!adminEmail || !adminPassword) {
-      setError('Email and password required');
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login-admin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: adminEmail, password: adminPassword }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('auth_token', data.token);
-        }
-        window.location.href = '/admin/dashboard';
-      } else {
-        setError('Invalid admin credentials');
-      }
-    } catch (err) {
-      setError('Error signing in as admin');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -148,14 +118,6 @@ export default function AuthPage() {
             }`}
           >
             Register
-          </button>
-          <button
-            onClick={() => setTab('admin')}
-            className={`pb-2 font-semibold border-b-2 ${
-              tab === 'admin' ? 'border-red-600 text-red-600' : 'border-transparent text-gray-600'
-            }`}
-          >
-            Admin
           </button>
         </div>
 
@@ -259,36 +221,6 @@ export default function AuthPage() {
           </div>
         )}
 
-        {tab === 'admin' && (
-          <div className="space-y-4">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-sm text-red-800">Admin Access Only</p>
-            </div>
-            <Input
-              label="Email"
-              type="email"
-              placeholder="admin@suqly.com"
-              value={adminEmail}
-              onChange={(e) => setAdminEmail(e.target.value)}
-              required
-            />
-            <Input
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              required
-            />
-            <Button
-              onClick={handleAdminLogin}
-              isLoading={loading}
-              className="w-full bg-red-600 hover:bg-red-700"
-            >
-              Sign In as Admin
-            </Button>
-          </div>
-        )}
       </Card>
     </div>
   );

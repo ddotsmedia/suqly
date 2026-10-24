@@ -1,0 +1,69 @@
+import type { MetadataRoute } from 'next';
+import { absoluteUrl, CATEGORIES, DUBAI_COMMUNITIES, EMIRATES, fetchAllListings } from '@/lib/site';
+
+export const revalidate = 3600;
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const now = new Date();
+
+  const staticPages: MetadataRoute.Sitemap = [
+    { url: absoluteUrl('/'), lastModified: now, changeFrequency: 'weekly', priority: 1 },
+    ...['/listings', '/sell', '/pricing', '/faq', '/help', '/safety', '/about'].map((path) => ({
+      url: absoluteUrl(path),
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    })),
+  ];
+
+  const categoryPages: MetadataRoute.Sitemap = CATEGORIES.map((c) => ({
+    url: absoluteUrl(`/categories/${c.slug}`),
+    lastModified: now,
+    changeFrequency: 'weekly',
+    priority: 0.8,
+  }));
+
+  const emiratePages: MetadataRoute.Sitemap = EMIRATES.map((e) => ({
+    url: absoluteUrl(`/emirates/${e.slug}`),
+    lastModified: now,
+    changeFrequency: 'weekly',
+    priority: 0.8,
+  }));
+
+  const emirateCategoryPages: MetadataRoute.Sitemap = EMIRATES.flatMap((e) =>
+    CATEGORIES.map((c) => ({
+      url: absoluteUrl(`/emirates/${e.slug}/${c.slug}`),
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    })),
+  );
+
+  const listings = await fetchAllListings();
+
+  // Only areas that have listings, to match the noindex rule on community pages.
+  const communityPages: MetadataRoute.Sitemap = DUBAI_COMMUNITIES.filter((c) =>
+    listings.some((l) => l.emirate === 'dubai' && l.community === c.name),
+  ).map((c) => ({
+    url: absoluteUrl(`/communities/${c.slug}`),
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  const listingPages: MetadataRoute.Sitemap = listings.map((l) => ({
+    url: absoluteUrl(`/listings/${l.id}`),
+    lastModified: l.updatedAt ? new Date(l.updatedAt) : now,
+    changeFrequency: 'daily',
+    priority: 0.9,
+  }));
+
+  return [
+    ...staticPages,
+    ...categoryPages,
+    ...emiratePages,
+    ...emirateCategoryPages,
+    ...communityPages,
+    ...listingPages,
+  ];
+}
