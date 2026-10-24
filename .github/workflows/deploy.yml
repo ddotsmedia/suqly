@@ -209,20 +209,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug SSH key format
+      - name: Setup SSH key from base64
         env:
-          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_SSH_KEY_B64: ${{ secrets.VPS_SSH_KEY_B64 }}
         run: |
-          echo "=== Key diagnostics (safe — no private bytes shown) ==="
-          echo "Key length (chars): ${#VPS_SSH_KEY}"
-          echo "First 27 chars: ${VPS_SSH_KEY:0:27}"
-          echo "Last 25 chars:  ${VPS_SSH_KEY: -25}"
-          echo "Line count: $(printf '%s' "$VPS_SSH_KEY" | wc -l)"
-          echo "Has BEGIN marker: $(printf '%s' "$VPS_SSH_KEY" | grep -c 'BEGIN OPENSSH' || echo 0)"
-          echo "Has END marker:   $(printf '%s' "$VPS_SSH_KEY" | grep -c 'END OPENSSH' || echo 0)"
-          # Write and validate with ssh-keygen
           mkdir -p ~/.ssh
-          printf '%s' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          echo "$VPS_SSH_KEY_B64" | base64 -d > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keygen -l -f ~/.ssh/deploy_key && echo "✅ Key is valid" || echo "❌ Key is INVALID"
 
@@ -232,7 +224,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           port: ${{ secrets.VPS_PORT || 22 }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          key_path: /root/.ssh/deploy_key
           source: docker-compose.prod.yml
           target: /opt/suqly/
           strip_components: 0
@@ -247,7 +239,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           port: ${{ secrets.VPS_PORT || 22 }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          key_path: /root/.ssh/deploy_key
           envs: GHCR_USER,GHCR_TOKEN,IMAGE_TAG
           script: |
             set -euo pipefail
