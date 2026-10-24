@@ -221,11 +221,11 @@ jobs:
           echo "⏳ Waiting for services to be ready..."
           sleep 10
 
-          echo "❓ Checking backend health at http://127.0.0.1:3021/health..."
+          echo "❓ Checking backend health at http://127.0.0.1:3023/health..."
           max_attempts=30
           attempt=0
           while [ $attempt -lt $max_attempts ]; do
-            if curl -sf http://127.0.0.1:3021/health > /dev/null; then
+            if curl -sf http://127.0.0.1:3023/health > /dev/null; then
               echo "✅ Backend is healthy"
               break
             fi
