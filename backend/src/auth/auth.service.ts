@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -83,6 +83,44 @@ export class AuthService {
         displayName: user.displayName,
         role: user.role,
       },
+    };
+  }
+
+  async register(data: {
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+  }): Promise<{ success: boolean; message: string; user: Partial<User> }> {
+    const existing = await this.usersRepository.findOne({
+      where: [{ email: data.email }, { phone: data.phone }],
+    });
+    if (existing) {
+      throw new ConflictException('Email or phone is already registered');
+    }
+
+    const passwordHash = await bcrypt.hash(data.password, 10);
+    const digits = data.phone.replace(/\D/g, '');
+
+    const user = await this.usersRepository.save(
+      this.usersRepository.create({
+        email: data.email,
+        phone: data.phone,
+        username: `user_${digits}`,
+        passwordHash,
+        displayName: data.name,
+        role: 'buyer',
+        phoneVerified: false,
+        emailVerified: false,
+        termsAccepted: true,
+        privacyAccepted: true,
+      }),
+    );
+
+    return {
+      success: true,
+      message: 'Account created. Sign in with your phone number to verify it.',
+      user: { id: user.id, email: user.email, phone: user.phone, displayName: user.displayName },
     };
   }
 
