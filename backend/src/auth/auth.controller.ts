@@ -28,7 +28,11 @@ export class AuthController {
   ) {
     const name = (body.name ?? '').trim();
     const email = (body.email ?? '').trim().toLowerCase();
-    const phone = (body.phone ?? '').trim();
+    // Convert Arabic-Indic digits (٠-٩) and Persian digits (۰-۹) to ASCII before validating.
+    const phone = (body.phone ?? '')
+      .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+      .replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
+      .trim();
 
     if (!name || name.length > 100) {
       throw new BadRequestException('Name is required');
