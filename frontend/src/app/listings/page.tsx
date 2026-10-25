@@ -2,10 +2,11 @@
 
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { getListings } from '@/lib/api';
+import { CATEGORIES, EMIRATES } from '@/lib/site';
 
 interface Listing {
   id: number;
@@ -43,6 +44,7 @@ export default function ListingsPage() {
 
 function ListingsContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [attempt, setAttempt] = useState(0);
   const [pages, setPages] = useState(1);
@@ -50,14 +52,38 @@ function ListingsContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState(() => searchParams.get('q') ?? '');
-  const [category, setCategory] = useState('all');
+  const [category, setCategory] = useState(() => {
+    const c = searchParams.get('category') ?? '';
+    return CATEGORIES.some((x) => x.slug === c) ? c : 'all';
+  });
+  const [emirate, setEmirate] = useState(() => {
+    const e = searchParams.get('emirate') ?? '';
+    return EMIRATES.some((x) => x.slug === e) ? e : 'all';
+  });
   const [sort, setSort] = useState<'newest' | 'price-asc' | 'price-desc'>('newest');
+
+  // Keep the filters in the URL so a filtered view can be shared or bookmarked.
+  function updateFilter(next: { category?: string; emirate?: string }) {
+    const c = next.category ?? category;
+    const e = next.emirate ?? emirate;
+    if (next.category !== undefined) setCategory(c);
+    if (next.emirate !== undefined) setEmirate(e);
+    setPage(1);
+    const params = new URLSearchParams();
+    if (c !== 'all') params.set('category', c);
+    if (e !== 'all') params.set('emirate', e);
+    const qs = params.toString();
+    router.replace(qs ? `/listings?${qs}` : '/listings', { scroll: false });
+  }
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    getListings(page, PAGE_SIZE)
+    getListings(page, PAGE_SIZE, {
+      category: category === 'all' ? undefined : category,
+      emirate: emirate === 'all' ? undefined : emirate,
+    })
       .then((res) => {
         if (cancelled) return;
         const parsed = readPage(res);
@@ -73,17 +99,11 @@ function ListingsContent() {
     return () => {
       cancelled = true;
     };
-  }, [page, attempt]);
-
-  const categories = useMemo(
-    () => Array.from(new Set(listings.map((l) => l.category).filter(Boolean))).sort(),
-    [listings]
-  );
+  }, [page, attempt, category, emirate]);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     let items = listings.filter((l) => {
-      if (category !== 'all' && l.category !== category) return false;
       if (!q) return true;
       return [l.title, l.category, l.community, l.emirate]
         .filter(Boolean)
@@ -92,7 +112,7 @@ function ListingsContent() {
     if (sort === 'price-asc') items = [...items].sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
     if (sort === 'price-desc') items = [...items].sort((a, b) => (b.price ?? -Infinity) - (a.price ?? -Infinity));
     return items;
-  }, [listings, query, category, sort]);
+  }, [listings, query, sort]);
 
   return (
     <main className="min-h-screen bg-white">
@@ -106,24 +126,35 @@ function ListingsContent() {
       </section>
 
       <section className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search this page by title, category or area"
+            placeholder="Search this page by title or area"
             aria-label="Search listings"
             className="md:col-span-2 px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
           />
           <select
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => updateFilter({ category: e.target.value })}
             aria-label="Filter by category"
             className="px-4 py-3 rounded-lg border border-gray-300 bg-white"
           >
             <option value="all">All categories</option>
-            {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
+            {CATEGORIES.map((c) => (
+              <option key={c.slug} value={c.slug}>{c.name}</option>
+            ))}
+          </select>
+          <select
+            value={emirate}
+            onChange={(e) => updateFilter({ emirate: e.target.value })}
+            aria-label="Filter by emirate"
+            className="px-4 py-3 rounded-lg border border-gray-300 bg-white"
+          >
+            <option value="all">All emirates</option>
+            {EMIRATES.map((e) => (
+              <option key={e.slug} value={e.slug}>{e.name}</option>
             ))}
           </select>
           <select
