@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Param, Body, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, Post, Param, Body, Request, UseGuards, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { SellerStatsService } from './seller-stats.service';
@@ -80,6 +80,25 @@ export class UsersController {
       parseInt(id),
       updateData,
     );
+    return {
+      success: true,
+      data: updated,
+      timestamp: new Date(),
+    };
+  }
+
+  @Post(':id/verify-id')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Verify user ID (admin only)' })
+  async verifyID(
+    @Param('id') id: string,
+    @Request() req: any,
+  ) {
+    if (req.user.role !== 'admin') {
+      throw new ForbiddenException('Only admins can verify IDs');
+    }
+    const updated = await this.usersService.verifyID(parseInt(id));
     return {
       success: true,
       data: updated,
