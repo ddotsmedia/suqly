@@ -23,7 +23,7 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-5 text-sm uppercase tracking-wider">Browse</h4>
             <ul className="space-y-3 text-sm">
               <li><Link href="/listings" className="text-gray-400 hover:text-white transition">All Listings</Link></li>
-              <li><Link href="/listings" className="text-gray-400 hover:text-white transition">Categories</Link></li>
+              <li><Link href="/categories" className="text-gray-400 hover:text-white transition">Categories</Link></li>
               <li><Link href="/listings" className="text-gray-400 hover:text-white transition">Trending Now</Link></li>
               <li><Link href="/listings" className="text-gray-400 hover:text-white transition">Sale Items</Link></li>
             </ul>
@@ -45,6 +45,7 @@ export default function Footer() {
               <li><Link href="/contact" className="text-gray-400 hover:text-white transition">Contact Us</Link></li>
               <li><Link href="/faq" className="text-gray-400 hover:text-white transition">FAQ</Link></li>
               <li><Link href="/safety" className="text-gray-400 hover:text-white transition">Safety Tips</Link></li>
+              <li><Link href="/prohibited-items" className="text-gray-400 hover:text-white transition">Prohibited Items</Link></li>
               <li><Link href="/privacy" className="text-gray-400 hover:text-white transition">Privacy Policy</Link></li>
             </ul>
           </div>
@@ -69,6 +70,7 @@ export default function Footer() {
               <Link href="/terms" className="hover:text-white transition">Terms of Service</Link>
               <Link href="/privacy" className="hover:text-white transition">Privacy Policy</Link>
               <Link href="/cookies" className="hover:text-white transition">Cookie Policy</Link>
+              <Link href="/disclaimer" className="hover:text-white transition">Disclaimer</Link>
             </div>
           </div>
 
