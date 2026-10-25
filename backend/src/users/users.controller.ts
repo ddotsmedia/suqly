@@ -1,7 +1,8 @@
-import { Controller, Get, Put, Param, Body, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, Post, Param, Body, Request, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { SellerStatsService } from './seller-stats.service';
+import { ReviewsService } from '../reviews/reviews.service';
 import { User } from './user.entity';
 import { JwtGuard } from '../auth/jwt.guard';
 
@@ -11,6 +12,7 @@ export class UsersController {
   constructor(
     private usersService: UsersService,
     private sellerStatsService: SellerStatsService,
+    private reviewsService: ReviewsService,
   ) {}
 
   @Get('me')
@@ -83,6 +85,28 @@ export class UsersController {
     return {
       success: true,
       data: updated,
+      timestamp: new Date(),
+    };
+  }
+
+  @Post(':id/reviews')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create review for seller' })
+  async createReview(
+    @Param('id') sellerId: string,
+    @Body() body: { listingId: number; rating: number; comment?: string },
+    @Request() req: any,
+  ) {
+    const review = await this.reviewsService.create(
+      req.user.id,
+      body.listingId,
+      body.rating,
+      body.comment || '',
+    );
+    return {
+      success: true,
+      data: review,
       timestamp: new Date(),
     };
   }

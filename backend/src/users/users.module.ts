@@ -4,6 +4,7 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { SellersController } from './sellers.controller';
 import { SellerStatsService } from './seller-stats.service';
+import { ReviewsService } from '../reviews/reviews.service';
 import { User } from './user.entity';
 import { Listing } from '../listings/listing.entity';
 import { Review } from '../reviews/review.entity';
@@ -12,7 +13,7 @@ import { Message } from '../messages/message.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([User, Listing, Review, Message])],
   controllers: [UsersController, SellersController],
-  providers: [UsersService, SellerStatsService],
+  providers: [UsersService, SellerStatsService, ReviewsService],
   exports: [UsersService, SellerStatsService],
 })
 export class UsersModule {}
