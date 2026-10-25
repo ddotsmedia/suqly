@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { getListings } from '@/lib/api';
 import { CATEGORIES, EMIRATES } from '@/lib/site';
+import { readRecentlyViewed, RecentListing } from '@/lib/recent';
 
 interface Listing {
   id: number;
@@ -61,6 +62,11 @@ function ListingsContent() {
     return EMIRATES.some((x) => x.slug === e) ? e : 'all';
   });
   const [sort, setSort] = useState<'newest' | 'price-asc' | 'price-desc'>('newest');
+  const [recent, setRecent] = useState<RecentListing[]>([]);
+
+  useEffect(() => {
+    setRecent(readRecentlyViewed());
+  }, []);
 
   // Keep the filters in the URL so a filtered view can be shared or bookmarked.
   function updateFilter(next: { category?: string; emirate?: string }) {
@@ -126,6 +132,22 @@ function ListingsContent() {
       </section>
 
       <section className="max-w-6xl mx-auto px-4 py-8">
+        {recent.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">Recently viewed</h2>
+            <ul className="flex gap-3 overflow-x-auto pb-2">
+              {recent.map((l) => (
+                <li key={l.id} className="shrink-0">
+                  <Link href={`/listings/${l.id}`} className="block w-56 p-4 rounded-lg border border-gray-200 hover:border-blue-300">
+                    <p className="text-xs text-blue-600 mb-1">{l.category}</p>
+                    <p className="font-semibold text-gray-900 truncate">{l.title}</p>
+                    <p className="text-sm text-gray-700">{formatPrice(l.price, l.currency || 'AED')}</p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
           <input
             type="search"

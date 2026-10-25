@@ -67,7 +67,8 @@ export class ModerationController {
   }
 
   @Post('flag/:listingId')
-  @ApiOperation({ summary: 'Flag a listing for review' })
+  @UseGuards(JwtGuard)
+  @ApiOperation({ summary: 'Flag a listing for review (sign-in required)' })
   async flagListing(
     @Param('listingId') listingId: string,
     @Body() body: { reason: string },

@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { ReviewForm } from '@/components/ReviewForm';
 import { ReviewsList } from '@/components/ReviewsList';
 import { SellerRatingBadge } from '@/components/SellerRatingBadge';
+import { recordRecentlyViewed } from '@/lib/recent';
 
 export default function ListingDetailContent() {
   const params = useParams();
@@ -34,6 +36,7 @@ export default function ListingDetailContent() {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/listings/${id}`);
         const data = await res.json();
         setListing(data.data);
+        if (data.data) recordRecentlyViewed(data.data);
       } finally {
         setLoading(false);
       }
@@ -88,6 +91,9 @@ export default function ListingDetailContent() {
               >
                 Share on WhatsApp
               </a>
+              <Link href={`/listings/${id}/report`} className="px-4 py-2 rounded-lg border text-sm text-red-600">
+                Report listing
+              </Link>
               <button
                 type="button"
                 onClick={copyLink}
