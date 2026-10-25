@@ -35,8 +35,15 @@ export async function apiCall(
   return response.json();
 }
 
-export async function getListings(page = 1, limit = 20) {
-  return apiCall(`/listings?page=${page}&limit=${limit}`);
+export async function getListings(
+  page = 1,
+  limit = 20,
+  filters: { category?: string; emirate?: string } = {},
+) {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (filters.category) params.set('category', filters.category);
+  if (filters.emirate) params.set('emirate', filters.emirate);
+  return apiCall(`/listings?${params.toString()}`);
 }
 
 export async function getListing(id: number) {

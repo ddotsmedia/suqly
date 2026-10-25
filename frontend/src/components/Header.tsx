@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { CATEGORIES, EMIRATES } from '@/lib/site';
 
 export default function Header() {
   const [searchFocus, setSearchFocus] = useState(false);
@@ -30,6 +31,38 @@ export default function Header() {
           </div>
 
           <nav className="hidden lg:flex gap-8 items-center">
+            <div className="relative group">
+              <Link href="/categories" className="text-gray-700 hover:text-blue-600 font-medium transition">
+                Categories
+              </Link>
+              <div className="absolute left-0 top-full pt-3 hidden group-hover:block group-focus-within:block">
+                <ul className="bg-white border border-gray-200 rounded-lg shadow-card py-2 w-56">
+                  {CATEGORIES.map((c) => (
+                    <li key={c.slug}>
+                      <Link href={`/categories/${c.slug}`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                        {c.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="relative group">
+              <Link href="/emirates" className="text-gray-700 hover:text-blue-600 font-medium transition">
+                Emirates
+              </Link>
+              <div className="absolute left-0 top-full pt-3 hidden group-hover:block group-focus-within:block">
+                <ul className="bg-white border border-gray-200 rounded-lg shadow-card py-2 w-56">
+                  {EMIRATES.map((e) => (
+                    <li key={e.slug}>
+                      <Link href={`/emirates/${e.slug}`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                        {e.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
             <Link href="/listings" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Browse
             </Link>
