@@ -109,6 +109,9 @@ export default function ListingDetailContent() {
             <p><strong>Emirate:</strong> {listing.emirate}</p>
             <p><strong>Condition:</strong> {listing.condition || 'Not specified'}</p>
             <p><strong>Posted:</strong> {new Date(listing.createdAt).toLocaleDateString()}</p>
+            {listing.refreshCount > 0 && (
+              <p><strong>Bumped:</strong> {listing.refreshCount} {listing.refreshCount === 1 ? 'time' : 'times'}</p>
+            )}
           </div>
 
           <div className="mb-6">
