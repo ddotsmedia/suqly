@@ -24,6 +24,8 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li><Link href="/listings" className="text-gray-400 hover:text-white transition">All Listings</Link></li>
               <li><Link href="/categories" className="text-gray-400 hover:text-white transition">Categories</Link></li>
+              <li><Link href="/emirates" className="text-gray-400 hover:text-white transition">Emirates</Link></li>
+              <li><Link href="/communities" className="text-gray-400 hover:text-white transition">Dubai Areas</Link></li>
               <li><Link href="/listings" className="text-gray-400 hover:text-white transition">Trending Now</Link></li>
               <li><Link href="/listings" className="text-gray-400 hover:text-white transition">Sale Items</Link></li>
             </ul>
@@ -44,7 +46,9 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li><Link href="/contact" className="text-gray-400 hover:text-white transition">Contact Us</Link></li>
               <li><Link href="/faq" className="text-gray-400 hover:text-white transition">FAQ</Link></li>
+              <li><Link href="/how-it-works" className="text-gray-400 hover:text-white transition">How It Works</Link></li>
               <li><Link href="/safety" className="text-gray-400 hover:text-white transition">Safety Tips</Link></li>
+              <li><Link href="/community-guidelines" className="text-gray-400 hover:text-white transition">Community Guidelines</Link></li>
               <li><Link href="/prohibited-items" className="text-gray-400 hover:text-white transition">Prohibited Items</Link></li>
               <li><Link href="/privacy" className="text-gray-400 hover:text-white transition">Privacy Policy</Link></li>
             </ul>
@@ -71,6 +75,7 @@ export default function Footer() {
               <Link href="/privacy" className="hover:text-white transition">Privacy Policy</Link>
               <Link href="/cookies" className="hover:text-white transition">Cookie Policy</Link>
               <Link href="/disclaimer" className="hover:text-white transition">Disclaimer</Link>
+              <Link href="/refunds" className="hover:text-white transition">Refund Policy</Link>
             </div>
           </div>
 
