@@ -18,6 +18,42 @@ export class AuthController {
     return this.authService.sendOTP(body.phone);
   }
 
+  @Post('register')
+  @ApiOperation({ summary: 'Create an account with email, phone and password' })
+  @ApiResponse({ status: 201, description: 'Account created; sign in with phone OTP to verify the phone' })
+  @ApiResponse({ status: 409, description: 'Email or phone already registered' })
+  async register(
+    @Body()
+    body: { name: string; email: string; phone: string; password: string; termsAccepted?: boolean },
+  ) {
+    const name = (body.name ?? '').trim();
+    const email = (body.email ?? '').trim().toLowerCase();
+    const phone = (body.phone ?? '').trim();
+
+    if (!name || name.length > 100) {
+      throw new BadRequestException('Name is required');
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 100) {
+      throw new BadRequestException('A valid email is required');
+    }
+    if (!/^\+?[0-9]{7,15}$/.test(phone.replace(/\D/g, ''))) {
+      throw new BadRequestException('Invalid phone number');
+    }
+    if (!body.password || body.password.length < 8) {
+      throw new BadRequestException('Password must be at least 8 characters');
+    }
+    if (body.termsAccepted !== true) {
+      throw new BadRequestException('You must accept the terms');
+    }
+
+    return this.authService.register({
+      name,
+      email,
+      phone,
+      password: body.password,
+    });
+  }
+
   @Post('verify-otp')
   @ApiOperation({ summary: 'Verify OTP and get JWT token' })
   @ApiResponse({ status: 200, description: 'Token issued successfully' })

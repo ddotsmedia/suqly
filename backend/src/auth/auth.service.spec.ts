@@ -4,6 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { AuthService } from './auth.service';
 import { SmsService } from './sms.service';
 import { User } from '../users/user.entity';
+import { ConflictException } from '@nestjs/common';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -57,6 +58,31 @@ describe('AuthService', () => {
     expect(result).toEqual({
       success: true,
       message: expect.any(String),
+    });
+  });
+
+  describe('register', () => {
+    const input = { name: 'Test User', email: 'test@example.com', phone: '+971509379212', password: 'secret-pass' };
+
+    it('rejects an email or phone that is already registered', async () => {
+      const repo = (service as any).usersRepository;
+      repo.findOne.mockResolvedValue({ id: 5 });
+      await expect(service.register(input)).rejects.toBeInstanceOf(ConflictException);
+      expect(repo.save).not.toHaveBeenCalled();
+    });
+
+    it('stores a bcrypt hash, never the plain password', async () => {
+      const repo = (service as any).usersRepository;
+      repo.findOne.mockResolvedValue(null);
+      repo.create.mockImplementation((d: any) => d);
+      repo.save.mockImplementation(async (d: any) => ({ id: 9, ...d }));
+      const result = await service.register(input);
+      const saved = repo.save.mock.calls[0][0];
+      expect(saved.passwordHash).not.toBe(input.password);
+      expect(saved.passwordHash).toMatch(/^\$2[aby]\$/);
+      expect(saved.phoneVerified).toBe(false);
+      expect(result.user).toEqual({ id: 9, email: input.email, phone: input.phone, displayName: input.name });
+      expect(JSON.stringify(result)).not.toContain('passwordHash');
     });
   });
 });
