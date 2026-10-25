@@ -90,7 +90,9 @@ export default function AuthPage() {
         setPhone('');
         setPassword('');
       } else {
-        setError('Registration failed');
+        const body = await res.json().catch(() => null);
+        const message = body?.error;
+        setError(typeof message === 'string' ? message : 'Registration failed');
       }
     } catch (err) {
       setError('Error registering');
