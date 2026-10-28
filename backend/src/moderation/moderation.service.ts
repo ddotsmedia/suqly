@@ -3,9 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ModerationQueue } from './moderation-queue.entity';
 import { Listing } from '../listings/listing.entity';
-
-const BANNED_KEYWORDS = ['casino', 'gambling', 'illegal', 'counterfeit', 'scam'];
-const SUSPICIOUS_PATTERNS = ['contact me outside', 'whatsapp only', 'no inspection'];
+import { BANNED_KEYWORDS, SUSPICIOUS_PATTERNS } from '../config/banned-keywords.config';
 
 @Injectable()
 export class ModerationService {
