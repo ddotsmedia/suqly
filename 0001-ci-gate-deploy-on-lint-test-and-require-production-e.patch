@@ -1,0 +1,59 @@
+From 823267e5788de16c5ac0cbf06e8d3c1b587d4a65 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 16 Oct 2026 21:13:33 +0400
+Subject: [PATCH] ci: gate deploy on lint/test and require production
+ environment
+
+Lint and test failures no longer pass silently: remove continue-on-error
+from lint and test steps so a red check blocks the build and deploy.
+npm audit stays advisory.
+
+The deploy job now runs under the `production` GitHub environment so
+required reviewers can approve each VPS deploy.
+
+Co-Authored-By: Claude Haiku 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01MZuUgCQrqr1DKVTsXZ27fg
+---
+ .github/workflows/deploy.yml | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/.github/workflows/deploy.yml b/.github/workflows/deploy.yml
+index 90de79c..40f3520 100644
+--- a/.github/workflows/deploy.yml
++++ b/.github/workflows/deploy.yml
+@@ -39,11 +39,9 @@ jobs:
+ 
+       - name: Lint backend
+         run: npm run lint --workspace=backend
+-        continue-on-error: true
+ 
+       - name: Lint frontend
+         run: npm run lint --workspace=frontend
+-        continue-on-error: true
+ 
+   test:
+     needs: setup
+@@ -95,11 +93,9 @@ jobs:
+           REDIS_HOST: localhost
+           REDIS_PORT: 6379
+         run: npm run test --workspace=backend
+-        continue-on-error: true
+ 
+       - name: Test frontend
+         run: npm run test --workspace=frontend
+-        continue-on-error: true
+ 
+   build:
+     needs: [lint, test]
+@@ -178,6 +174,8 @@ jobs:
+     needs: [build, security]
+     runs-on: ubuntu-latest
+     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
++    environment:
++      name: production
+     steps:
+       - uses: actions/checkout@v4
+ 
+-- 
+2.43.0
+
