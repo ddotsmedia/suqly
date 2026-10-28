@@ -25,6 +25,7 @@ import {
 } from './featured-listings.controller';
 import { Listing } from './listing.entity';
 import { ListingImage } from './listing-image.entity';
+import { ListingPriceHistory } from './listing-price-history.entity';
 import { SavedSearch } from './saved-search.entity';
 import { WishlistItem, WishlistShare } from './wishlist.entity';
 import { FeaturedListing } from './featured-listing.entity';
@@ -40,6 +41,7 @@ import { FeaturedListingsExpiryProcessor } from '../jobs/featured-listings-expir
     TypeOrmModule.forFeature([
       Listing,
       ListingImage,
+      ListingPriceHistory,
       SavedSearch,
       WishlistItem,
       WishlistShare,

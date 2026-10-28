@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Listing } from './listing.entity';
 import { ListingImage } from './listing-image.entity';
+import { ListingPriceHistory } from './listing-price-history.entity';
 import { UsersService } from '../users/users.service';
 import { ImageCompressionService } from './image-compression.service';
 import { ModerationService } from '../moderation/moderation.service';
@@ -21,6 +22,8 @@ export class ListingsService {
     private listingsRepository: Repository<Listing>,
     @InjectRepository(ListingImage)
     private imagesRepository: Repository<ListingImage>,
+    @InjectRepository(ListingPriceHistory)
+    private priceHistoryRepository: Repository<ListingPriceHistory>,
     private usersService: UsersService,
     private imageCompressionService: ImageCompressionService,
     private moderationService: ModerationService,
@@ -188,7 +191,29 @@ export class ListingsService {
     }
 
     await this.listingsRepository.update(id, changes);
-    return this.findById(id);
+    const updated = await this.findById(id);
+
+    if (changes.price) {
+      await this.recordPriceChange(id, changes.price, changes.currency || 'AED');
+    }
+
+    return updated;
+  }
+
+  private async recordPriceChange(listingId: number, price: number, currency: string): Promise<void> {
+    const history = this.priceHistoryRepository.create({
+      listingId,
+      price,
+      currency,
+    });
+    await this.priceHistoryRepository.save(history);
+  }
+
+  async getPriceHistory(listingId: number): Promise<ListingPriceHistory[]> {
+    return this.priceHistoryRepository.find({
+      where: { listingId },
+      order: { changedAt: 'DESC' },
+    });
   }
 
   async delete(id: number, userId: number): Promise<void> {

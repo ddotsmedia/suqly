@@ -244,6 +244,17 @@ export class ListingsController {
     };
   }
 
+  @Get(':id/price-history')
+  @ApiOperation({ summary: 'Get listing price history' })
+  async getPriceHistory(@Param('id', new ParseIntPipe()) id: number) {
+    const history = await this.listingsService.getPriceHistory(id);
+    return {
+      success: true,
+      data: history,
+      timestamp: new Date(),
+    };
+  }
+
   @Post('geocode')
   @ApiOperation({ summary: 'Forward geocode address' })
   async geocodeAddress(@Body() body: { address: string }) {
