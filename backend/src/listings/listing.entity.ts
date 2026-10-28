@@ -104,6 +104,9 @@ export class Listing {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Column({ type: 'integer', default: 0, name: 'refresh_count' })
+  refreshCount: number;
+
   getCoordinates() {
     return {
       lat: Number(this.latitude),

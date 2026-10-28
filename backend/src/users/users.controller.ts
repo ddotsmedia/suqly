@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Post, Delete, Param, Body, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, Post, Delete, Param, Body, Request, UseGuards, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { SellerStatsService } from './seller-stats.service';
@@ -116,6 +116,25 @@ export class UsersController {
     await this.blocksService.unblock(req.user.id, parseInt(blockedUserId));
     return {
       success: true,
+      timestamp: new Date(),
+    };
+  }
+
+  @Post(':id/verify-id')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Verify user ID (admin only)' })
+  async verifyID(
+    @Param('id') id: string,
+    @Request() req: any,
+  ) {
+    if (req.user.role !== 'admin') {
+      throw new ForbiddenException('Only admins can verify IDs');
+    }
+    const updated = await this.usersService.verifyID(parseInt(id));
+    return {
+      success: true,
+      data: updated,
       timestamp: new Date(),
     };
   }

@@ -29,7 +29,7 @@ export class ListingsService {
   async create(
     userId: number,
     createData: any,
-  ): Promise<Listing> {
+  ): Promise<any> {
     const user = await this.usersService.findById(userId);
 
     if (createData.subcategory && !isValidSubcategory(createData.category, createData.subcategory)) {
@@ -46,7 +46,15 @@ export class ListingsService {
 
     const saved = await this.listingsRepository.save(listingData);
     const savedListing = saved as unknown as Listing;
-    return this.findById(savedListing.id);
+    const listing = await this.findById(savedListing.id);
+
+    const duplicateCheck = await this.checkForDuplicates(userId, savedListing.title);
+    const result: any = listing;
+    if (duplicateCheck.isDuplicate) {
+      result.warnings = { duplicate: duplicateCheck.message };
+    }
+
+    return result;
   }
 
   async findByUser(userId: number): Promise<Listing[]> {
@@ -251,6 +259,31 @@ export class ListingsService {
     });
 
     return this.imagesRepository.save(image);
+  }
+
+  private normalizeTitle(title: string): string {
+    return title.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  }
+
+  async checkForDuplicates(userId: number, title: string): Promise<{ isDuplicate: boolean; message?: string }> {
+    const normalizedNewTitle = this.normalizeTitle(title);
+
+    const sellerListings = await this.listingsRepository.find({
+      where: { userId, status: 'active' },
+      relations: ['images'],
+    });
+
+    for (const listing of sellerListings) {
+      const normalizedExistingTitle = this.normalizeTitle(listing.title);
+      if (normalizedNewTitle === normalizedExistingTitle) {
+        return {
+          isDuplicate: true,
+          message: `Similar listing with title "${listing.title}" already exists`,
+        };
+      }
+    }
+
+    return { isDuplicate: false };
   }
 
   private generateSlug(title: string): string {
