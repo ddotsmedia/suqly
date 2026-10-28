@@ -224,6 +224,36 @@ export class ListingsService {
     return saved;
   }
 
+  async pause(id: number, userId: number): Promise<Listing> {
+    const listing = await this.findById(id);
+
+    if (listing.userId !== userId) {
+      throw new ForbiddenException('Cannot pause other user\'s listing');
+    }
+
+    if (listing.status !== 'active') {
+      throw new BadRequestException('Only active listings can be paused');
+    }
+
+    listing.status = 'paused';
+    return this.listingsRepository.save(listing);
+  }
+
+  async resume(id: number, userId: number): Promise<Listing> {
+    const listing = await this.findById(id);
+
+    if (listing.userId !== userId) {
+      throw new ForbiddenException('Cannot resume other user\'s listing');
+    }
+
+    if (listing.status !== 'paused') {
+      throw new BadRequestException('Only paused listings can be resumed');
+    }
+
+    listing.status = 'active';
+    return this.listingsRepository.save(listing);
+  }
+
   async addImage(
     listingId: number,
     imageUrl: string,
