@@ -107,6 +107,9 @@ export class Listing {
   @Column({ type: 'integer', default: 0, name: 'refresh_count' })
   refreshCount: number;
 
+  @Column({ type: 'jsonb', default: '{}', nullable: true })
+  attributes: Record<string, any>;
+
   getCoordinates() {
     return {
       lat: Number(this.latitude),
