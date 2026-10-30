@@ -200,6 +200,19 @@ export class ListingsController {
     };
   }
 
+  @Post(':id/duplicate')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Duplicate listing (authenticated)' })
+  async duplicateListing(@Param('id') id: string, @Request() req: any) {
+    const listing = await this.listingsService.duplicateListing(parseInt(id), req.user.id);
+    return {
+      success: true,
+      data: listing,
+      timestamp: new Date(),
+    };
+  }
+
   @Post(':id/images')
   @UseGuards(JwtGuard)
   @ApiBearerAuth()

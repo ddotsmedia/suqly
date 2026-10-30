@@ -316,6 +316,47 @@ export class ListingsService {
     return { isDuplicate: false };
   }
 
+  async duplicateListing(id: number, userId: number): Promise<Listing> {
+    const listing = await this.findById(id);
+
+    if (listing.userId !== userId) {
+      throw new ForbiddenException('Can only duplicate own listings');
+    }
+
+    const newListing = this.listingsRepository.create({
+      userId,
+      category: listing.category,
+      subcategory: listing.subcategory,
+      title: `${listing.title} (Copy)`,
+      description: listing.description,
+      emirate: listing.emirate,
+      community: listing.community,
+      publicLocation: listing.publicLocation,
+      price: listing.price,
+      currency: listing.currency,
+      status: 'draft',
+      slug: this.generateSlug(`${listing.title} (Copy)`),
+      latitude: listing.latitude,
+      longitude: listing.longitude,
+      addressGeo: listing.addressGeo,
+    }) as unknown as Listing;
+
+    const savedListing = await this.listingsRepository.save(newListing);
+
+    if (listing.images && listing.images.length > 0) {
+      const newImages = listing.images.map(img =>
+        this.imagesRepository.create({
+          listingId: savedListing.id,
+          fullUrl: img.fullUrl,
+          thumbnailUrl: img.thumbnailUrl,
+        })
+      );
+      await this.imagesRepository.save(newImages);
+    }
+
+    return this.findById(savedListing.id);
+  }
+
   private generateSlug(title: string): string {
     const baseSlug = title
       .toLowerCase()
