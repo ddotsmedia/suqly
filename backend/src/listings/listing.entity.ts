@@ -69,7 +69,7 @@ export class Listing {
 
   @Column({
     type: 'enum',
-    enum: ['draft', 'pending_review', 'active', 'on_hold', 'sold', 'expired'],
+    enum: ['draft', 'pending_review', 'active', 'paused', 'on_hold', 'sold', 'expired'],
     default: 'draft',
   })
   status: string;
