@@ -41,6 +41,21 @@ export class ModerationQueue {
   @Column({ type: 'timestamp', nullable: true })
   reviewedAt: Date;
 
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  appealStatus: string;
+
+  @Column({ type: 'text', nullable: true })
+  appealReason: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  appealAt: Date;
+
+  @Column({ type: 'text', nullable: true })
+  appealDecisionNote: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  appealDecidedAt: Date;
+
   @ManyToOne(() => Listing, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'listingId' })
   listing: Listing;
