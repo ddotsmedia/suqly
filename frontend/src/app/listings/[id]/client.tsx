@@ -8,6 +8,7 @@ import { ReviewsList } from '@/components/ReviewsList';
 import { SellerRatingBadge } from '@/components/SellerRatingBadge';
 import { PhoneVerifiedBadge } from '@/components/PhoneVerifiedBadge';
 import { recordRecentlyViewed } from '@/lib/recent';
+import { AppealForm } from '@/components/AppealForm';
 
 export default function ListingDetailContent() {
   const params = useParams();
@@ -68,6 +69,10 @@ export default function ListingDetailContent() {
         {/* Details */}
         <div>
           <h1 className="text-3xl font-bold mb-2">{listing.title}</h1>
+
+          {listing.userId && (
+            <AppealForm listingId={listing.id} ownerId={listing.userId} />
+          )}
 
           {/* Seller info with rating */}
           <div className="mb-4 p-4 bg-gray-50 rounded-lg">
