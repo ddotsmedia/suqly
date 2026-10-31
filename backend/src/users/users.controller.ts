@@ -35,6 +35,9 @@ export class UsersController {
         avatarUrl: user.avatarUrl,
         language: user.language,
         role: user.role,
+        emailVerified: user.emailVerified,
+        phoneVerified: user.phoneVerified,
+        idVerified: user.idVerified,
       },
       timestamp: new Date(),
     };
