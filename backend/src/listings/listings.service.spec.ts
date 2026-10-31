@@ -3,6 +3,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ListingsService } from './listings.service';
 import { Listing } from './listing.entity';
 import { ListingImage } from './listing-image.entity';
+import { ListingPriceHistory } from './listing-price-history.entity';
 import { UsersService } from '../users/users.service';
 import { ImageCompressionService } from './image-compression.service';
 import { ModerationService } from '../moderation/moderation.service';
@@ -45,6 +46,10 @@ describe('ListingsService', () => {
         {
           provide: getRepositoryToken(ListingImage),
           useValue: mockImageRepository,
+        },
+        {
+          provide: getRepositoryToken(ListingPriceHistory),
+          useValue: { create: jest.fn((d) => d), save: jest.fn(), find: jest.fn() },
         },
         {
           provide: UsersService,

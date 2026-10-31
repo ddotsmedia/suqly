@@ -8,6 +8,7 @@ describe('ListingsService.update', () => {
   service.listingsRepository = repo;
   service.findById = jest.fn(async () => ({ ...listing }));
   service.generateSlug = (t: string) => t.toLowerCase().replace(/\s+/g, '-');
+  service.priceHistoryRepository = { create: jest.fn((d) => d), save: jest.fn() };
   service.moderationService = { autoFlagListing: jest.fn(async () => undefined) };
 
   beforeEach(() => jest.clearAllMocks());
