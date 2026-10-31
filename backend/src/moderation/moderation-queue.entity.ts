@@ -41,19 +41,19 @@ export class ModerationQueue {
   @Column({ type: 'timestamp', nullable: true })
   reviewedAt: Date;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
+  @Column({ type: 'varchar', length: 50, nullable: true, name: 'appeal_status' })
   appealStatus: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: true, name: 'appeal_reason' })
   appealReason: string;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true, name: 'appeal_at' })
   appealAt: Date;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: true, name: 'appeal_decision_note' })
   appealDecisionNote: string;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true, name: 'appeal_decided_at' })
   appealDecidedAt: Date;
 
   @ManyToOne(() => Listing, { onDelete: 'CASCADE' })
