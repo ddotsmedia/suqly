@@ -22,6 +22,7 @@ describe('ListingsService subcategory rules', () => {
   service.listingsRepository = repo;
   service.generateSlug = (t: string) => t.toLowerCase().replace(/\s+/g, '-');
   service.usersService = { findById: jest.fn(async () => ({})) };
+  service.moderationService = { autoFlagListing: jest.fn(async () => undefined) };
   service.findById = jest.fn(async () => ({ id: 5, userId: 1, category: 'property', subcategory: 'villas' }));
 
   beforeEach(() => jest.clearAllMocks());

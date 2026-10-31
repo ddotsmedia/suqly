@@ -46,6 +46,9 @@ export class ListingsService {
 
     const saved = await this.listingsRepository.save(listingData);
     const savedListing = saved as unknown as Listing;
+
+    await this.moderationService.autoFlagListing(savedListing);
+
     const listing = await this.findById(savedListing.id);
 
     const duplicateCheck = await this.checkForDuplicates(userId, savedListing.title);
@@ -188,7 +191,9 @@ export class ListingsService {
     }
 
     await this.listingsRepository.update(id, changes);
-    return this.findById(id);
+    const updated = await this.findById(id);
+    await this.moderationService.autoFlagListing(updated);
+    return updated;
   }
 
   async delete(id: number, userId: number): Promise<void> {
