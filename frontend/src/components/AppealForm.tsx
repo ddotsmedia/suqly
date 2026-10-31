@@ -21,7 +21,7 @@ export function AppealForm({ listingId, ownerId }: { listingId: number; ownerId:
 
   useEffect(() => {
     if (!localStorage.getItem('auth_token') || currentUserId() !== ownerId) return;
-    apiCall(`/moderation/listing/${listingId}`)
+    apiCall(`/moderation/listing/${listingId}/owner`)
       .then((res) => {
         const flags: Flag[] = res?.data ?? [];
         const rejected = flags.find((f) => f.status === 'rejected');

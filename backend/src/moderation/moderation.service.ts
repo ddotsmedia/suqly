@@ -209,6 +209,20 @@ export class ModerationService {
     return this.moderationRepository.save(flag);
   }
 
+  async getOwnerListingFlags(
+    listingId: number,
+    viewerId: number,
+    isStaff: boolean,
+  ): Promise<ModerationQueue[]> {
+    if (!isStaff) {
+      const listing = await this.listingsRepository.findOne({ where: { id: listingId } });
+      if (!listing || listing.userId !== viewerId) {
+        throw new ForbiddenException('Only the listing owner or staff can view these flags');
+      }
+    }
+    return this.getListingFlags(listingId);
+  }
+
   async getListingFlags(listingId: number): Promise<ModerationQueue[]> {
     return this.moderationRepository.find({
       where: { listingId },
