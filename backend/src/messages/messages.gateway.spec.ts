@@ -2,7 +2,8 @@ import { MessagesGateway } from './messages.gateway';
 
 describe('MessagesGateway auth', () => {
   const jwt = { verify: jest.fn() };
-  const gateway = new MessagesGateway({} as any, jwt as any);
+  const blocks = { isBlocked: jest.fn() };
+  const gateway = new MessagesGateway({} as any, jwt as any, blocks as any);
 
   const makeClient = (token?: string) => ({
     id: 's1',

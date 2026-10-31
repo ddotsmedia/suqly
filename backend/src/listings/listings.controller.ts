@@ -174,6 +174,45 @@ export class ListingsController {
     };
   }
 
+  @Put(':id/pause')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Pause active listing (authenticated)' })
+  async pauseListing(@Param('id') id: string, @Request() req: any) {
+    const listing = await this.listingsService.pause(parseInt(id), req.user.id);
+    return {
+      success: true,
+      data: listing,
+      timestamp: new Date(),
+    };
+  }
+
+  @Put(':id/resume')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Resume paused listing (authenticated)' })
+  async resumeListing(@Param('id') id: string, @Request() req: any) {
+    const listing = await this.listingsService.resume(parseInt(id), req.user.id);
+    return {
+      success: true,
+      data: listing,
+      timestamp: new Date(),
+    };
+  }
+
+  @Post(':id/duplicate')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Duplicate listing (authenticated)' })
+  async duplicateListing(@Param('id') id: string, @Request() req: any) {
+    const listing = await this.listingsService.duplicateListing(parseInt(id), req.user.id);
+    return {
+      success: true,
+      data: listing,
+      timestamp: new Date(),
+    };
+  }
+
   @Post(':id/images')
   @UseGuards(JwtGuard)
   @ApiBearerAuth()

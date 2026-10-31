@@ -4,9 +4,10 @@ import { ModerationService } from './moderation.service';
 import { ModerationController } from './moderation.controller';
 import { ModerationQueue } from './moderation-queue.entity';
 import { Listing } from '../listings/listing.entity';
+import { Notification } from '../notifications/notification.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ModerationQueue, Listing])],
+  imports: [TypeOrmModule.forFeature([ModerationQueue, Listing, Notification])],
   controllers: [ModerationController],
   providers: [ModerationService],
   exports: [ModerationService],

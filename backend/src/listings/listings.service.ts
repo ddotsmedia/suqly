@@ -249,6 +249,36 @@ export class ListingsService {
     return saved;
   }
 
+  async pause(id: number, userId: number): Promise<Listing> {
+    const listing = await this.findById(id);
+
+    if (listing.userId !== userId) {
+      throw new ForbiddenException('Cannot pause other user\'s listing');
+    }
+
+    if (listing.status !== 'active') {
+      throw new BadRequestException('Only active listings can be paused');
+    }
+
+    listing.status = 'paused';
+    return this.listingsRepository.save(listing);
+  }
+
+  async resume(id: number, userId: number): Promise<Listing> {
+    const listing = await this.findById(id);
+
+    if (listing.userId !== userId) {
+      throw new ForbiddenException('Cannot resume other user\'s listing');
+    }
+
+    if (listing.status !== 'paused') {
+      throw new BadRequestException('Only paused listings can be resumed');
+    }
+
+    listing.status = 'active';
+    return this.listingsRepository.save(listing);
+  }
+
   async addImage(
     listingId: number,
     imageUrl: string,
@@ -309,6 +339,47 @@ export class ListingsService {
     }
 
     return { isDuplicate: false };
+  }
+
+  async duplicateListing(id: number, userId: number): Promise<Listing> {
+    const listing = await this.findById(id);
+
+    if (listing.userId !== userId) {
+      throw new ForbiddenException('Can only duplicate own listings');
+    }
+
+    const newListing = this.listingsRepository.create({
+      userId,
+      category: listing.category,
+      subcategory: listing.subcategory,
+      title: `${listing.title} (Copy)`,
+      description: listing.description,
+      emirate: listing.emirate,
+      community: listing.community,
+      publicLocation: listing.publicLocation,
+      price: listing.price,
+      currency: listing.currency,
+      status: 'draft',
+      slug: this.generateSlug(`${listing.title} (Copy)`),
+      latitude: listing.latitude,
+      longitude: listing.longitude,
+      addressGeo: listing.addressGeo,
+    }) as unknown as Listing;
+
+    const savedListing = await this.listingsRepository.save(newListing);
+
+    if (listing.images && listing.images.length > 0) {
+      const newImages = listing.images.map(img =>
+        this.imagesRepository.create({
+          listingId: savedListing.id,
+          fullUrl: img.fullUrl,
+          thumbnailUrl: img.thumbnailUrl,
+        })
+      );
+      await this.imagesRepository.save(newImages);
+    }
+
+    return this.findById(savedListing.id);
   }
 
   private generateSlug(title: string): string {

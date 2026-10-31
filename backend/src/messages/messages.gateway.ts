@@ -11,6 +11,7 @@ import {
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { MessagesService } from './messages.service';
+import { BlocksService } from '../blocks/blocks.service';
 
 interface AuthenticatedSocket extends Socket {
   userId?: number;
@@ -33,6 +34,7 @@ export class MessagesGateway
   constructor(
     private messagesService: MessagesService,
     private jwtService: JwtService,
+    private blocksService: BlocksService,
   ) {}
 
   afterInit(server: any) {
@@ -80,6 +82,11 @@ export class MessagesGateway
   ) {
     if (!client.userId) {
       return client.emit('error', { message: 'Not authenticated' });
+    }
+
+    const isBlocked = await this.blocksService.isBlocked(client.userId, data.recipientId);
+    if (isBlocked) {
+      return client.emit('error', { message: 'Blocked: cannot send message' });
     }
 
     const message = await this.messagesService.createMessage(
