@@ -145,17 +145,37 @@ export class ModerationController {
   }
 
   @Get('listing/:listingId')
-  @ApiOperation({ summary: 'Get flags for a listing' })
+  @ApiOperation({ summary: 'Get moderation status for a listing (no reporter details)' })
   async getListingFlags(@Param('listingId') listingId: string) {
     const flags = await this.moderationService.getListingFlags(
       parseInt(listingId),
     );
 
+    // Public view: no reporter ids, reasons or reviewer ids
     return {
       success: true,
-      data: flags,
+      data: flags.map((f) => ({
+        id: f.id,
+        status: f.status,
+        flaggedAt: f.flaggedAt,
+        appealStatus: f.appealStatus,
+        appealDecisionNote: f.appealDecisionNote,
+      })),
       timestamp: new Date(),
     };
+  }
+
+  @Get('listing/:listingId/owner')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Full flags for a listing (listing owner or staff)' })
+  async getOwnerListingFlags(@Param('listingId') listingId: string, @Request() req: any) {
+    const flags = await this.moderationService.getOwnerListingFlags(
+      parseInt(listingId),
+      req.user.id,
+      req.user.role === 'staff',
+    );
+    return { success: true, data: flags, timestamp: new Date() };
   }
 
   @Post('approve/:flagId')
