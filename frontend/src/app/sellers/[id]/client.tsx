@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ListingCards from '@/components/ListingCards';
@@ -139,6 +140,11 @@ export default function SellerProfileContent({ id }: { id: string }) {
         <ListingCards listings={listings} />
 
         <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-6">Reviews</h2>
+        {reviews.length > 0 && (
+          <Link href={`/sellers/${id}/reviews`} className="inline-block text-sm text-blue-700 hover:underline mb-4">
+            See all reviews
+          </Link>
+        )}
         {reviews.length === 0 ? (
           <p className="text-gray-600">No reviews yet.</p>
         ) : (
