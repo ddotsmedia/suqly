@@ -6,7 +6,9 @@ import { useParams } from 'next/navigation';
 import { ReviewForm } from '@/components/ReviewForm';
 import { ReviewsList } from '@/components/ReviewsList';
 import { SellerRatingBadge } from '@/components/SellerRatingBadge';
+import { PhoneVerifiedBadge } from '@/components/PhoneVerifiedBadge';
 import { recordRecentlyViewed } from '@/lib/recent';
+import { AppealForm } from '@/components/AppealForm';
 
 export default function ListingDetailContent() {
   const params = useParams();
@@ -68,13 +70,18 @@ export default function ListingDetailContent() {
         <div>
           <h1 className="text-3xl font-bold mb-2">{listing.title}</h1>
 
+          {listing.userId && (
+            <AppealForm listingId={listing.id} ownerId={listing.userId} />
+          )}
+
           {/* Seller info with rating */}
           <div className="mb-4 p-4 bg-gray-50 rounded-lg">
             <p className="text-sm text-gray-600 mb-2">Seller</p>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2 mb-2">
               <p className="font-semibold">{listing.user?.displayName}</p>
               <SellerRatingBadge sellerId={listing.userId} />
             </div>
+            {listing.user?.phoneVerified && <PhoneVerifiedBadge />}
           </div>
 
           <div className="text-2xl font-bold text-green-600 mb-4">

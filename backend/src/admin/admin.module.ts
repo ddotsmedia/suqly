@@ -7,9 +7,10 @@ import { Listing } from '../listings/listing.entity';
 import { Transaction } from '../payments/transaction.entity';
 import { ModerationQueue } from '../moderation/moderation-queue.entity';
 import { ModerationService } from '../moderation/moderation.service';
+import { Notification } from '../notifications/notification.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Listing, Transaction, ModerationQueue])],
+  imports: [TypeOrmModule.forFeature([User, Listing, Transaction, ModerationQueue, Notification])],
   controllers: [AdminController],
   providers: [AdminService, ModerationService],
 })

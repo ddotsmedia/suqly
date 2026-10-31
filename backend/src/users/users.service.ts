@@ -73,4 +73,9 @@ export class UsersService {
       responseRate: user.responseRate || 0,
     };
   }
+
+  async verifyID(id: number): Promise<Partial<User>> {
+    await this.usersRepository.update(id, { idVerified: true });
+    return this.findById(id);
+  }
 }

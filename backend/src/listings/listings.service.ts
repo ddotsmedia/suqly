@@ -29,7 +29,7 @@ export class ListingsService {
   async create(
     userId: number,
     createData: any,
-  ): Promise<Listing> {
+  ): Promise<any> {
     const user = await this.usersService.findById(userId);
 
     if (createData.subcategory && !isValidSubcategory(createData.category, createData.subcategory)) {
@@ -49,7 +49,15 @@ export class ListingsService {
 
     await this.moderationService.autoFlagListing(savedListing);
 
-    return this.findById(savedListing.id);
+    const listing = await this.findById(savedListing.id);
+
+    const duplicateCheck = await this.checkForDuplicates(userId, savedListing.title);
+    const result: any = listing;
+    if (duplicateCheck.isDuplicate) {
+      result.warnings = { duplicate: duplicateCheck.message };
+    }
+
+    return result;
   }
 
   async findByUser(userId: number): Promise<Listing[]> {
@@ -221,6 +229,36 @@ export class ListingsService {
     return saved;
   }
 
+  async pause(id: number, userId: number): Promise<Listing> {
+    const listing = await this.findById(id);
+
+    if (listing.userId !== userId) {
+      throw new ForbiddenException('Cannot pause other user\'s listing');
+    }
+
+    if (listing.status !== 'active') {
+      throw new BadRequestException('Only active listings can be paused');
+    }
+
+    listing.status = 'paused';
+    return this.listingsRepository.save(listing);
+  }
+
+  async resume(id: number, userId: number): Promise<Listing> {
+    const listing = await this.findById(id);
+
+    if (listing.userId !== userId) {
+      throw new ForbiddenException('Cannot resume other user\'s listing');
+    }
+
+    if (listing.status !== 'paused') {
+      throw new BadRequestException('Only paused listings can be resumed');
+    }
+
+    listing.status = 'active';
+    return this.listingsRepository.save(listing);
+  }
+
   async addImage(
     listingId: number,
     imageUrl: string,
@@ -256,6 +294,72 @@ export class ListingsService {
     });
 
     return this.imagesRepository.save(image);
+  }
+
+  private normalizeTitle(title: string): string {
+    return title.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  }
+
+  async checkForDuplicates(userId: number, title: string): Promise<{ isDuplicate: boolean; message?: string }> {
+    const normalizedNewTitle = this.normalizeTitle(title);
+
+    const sellerListings = await this.listingsRepository.find({
+      where: { userId, status: 'active' },
+      relations: ['images'],
+    });
+
+    for (const listing of sellerListings) {
+      const normalizedExistingTitle = this.normalizeTitle(listing.title);
+      if (normalizedNewTitle === normalizedExistingTitle) {
+        return {
+          isDuplicate: true,
+          message: `Similar listing with title "${listing.title}" already exists`,
+        };
+      }
+    }
+
+    return { isDuplicate: false };
+  }
+
+  async duplicateListing(id: number, userId: number): Promise<Listing> {
+    const listing = await this.findById(id);
+
+    if (listing.userId !== userId) {
+      throw new ForbiddenException('Can only duplicate own listings');
+    }
+
+    const newListing = this.listingsRepository.create({
+      userId,
+      category: listing.category,
+      subcategory: listing.subcategory,
+      title: `${listing.title} (Copy)`,
+      description: listing.description,
+      emirate: listing.emirate,
+      community: listing.community,
+      publicLocation: listing.publicLocation,
+      price: listing.price,
+      currency: listing.currency,
+      status: 'draft',
+      slug: this.generateSlug(`${listing.title} (Copy)`),
+      latitude: listing.latitude,
+      longitude: listing.longitude,
+      addressGeo: listing.addressGeo,
+    }) as unknown as Listing;
+
+    const savedListing = await this.listingsRepository.save(newListing);
+
+    if (listing.images && listing.images.length > 0) {
+      const newImages = listing.images.map(img =>
+        this.imagesRepository.create({
+          listingId: savedListing.id,
+          fullUrl: img.fullUrl,
+          thumbnailUrl: img.thumbnailUrl,
+        })
+      );
+      await this.imagesRepository.save(newImages);
+    }
+
+    return this.findById(savedListing.id);
   }
 
   private generateSlug(title: string): string {
