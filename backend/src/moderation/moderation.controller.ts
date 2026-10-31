@@ -8,6 +8,7 @@ import {
   UseGuards,
   Request,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ModerationService } from './moderation.service';
@@ -87,18 +88,94 @@ export class ModerationController {
     };
   }
 
+  @Post('flag/:flagId/appeal')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Appeal a rejected flag (listing owner only)' })
+  async appealFlag(
+    @Param('flagId') flagId: string,
+    @Body() body: { reason: string },
+    @Request() req: any,
+  ) {
+    if (!body?.reason || body.reason.trim().length < 10) {
+      throw new BadRequestException('Please explain your appeal (at least 10 characters)');
+    }
+    const flag = await this.moderationService.appealFlag(
+      parseInt(flagId),
+      req.user.id,
+      body.reason.trim(),
+    );
+    return { success: true, data: flag, timestamp: new Date() };
+  }
+
+  @Get('appeals')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List appeals by status (admin only)' })
+  async getAppeals(@Query('status') status: string, @Request() req: any) {
+    if (req.user.role !== 'staff') {
+      throw new ForbiddenException('Admin access required');
+    }
+    const appeals = await this.moderationService.getAppeals(status || 'pending');
+    return { success: true, data: appeals, timestamp: new Date() };
+  }
+
+  @Post('appeal/:flagId/resolve')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Decide an appeal (admin only)' })
+  async resolveAppeal(
+    @Param('flagId') flagId: string,
+    @Body() body: { decision: 'upheld' | 'overturned'; note: string },
+    @Request() req: any,
+  ) {
+    if (req.user.role !== 'staff') {
+      throw new ForbiddenException('Admin access required');
+    }
+    if (body?.decision !== 'upheld' && body?.decision !== 'overturned') {
+      throw new BadRequestException("decision must be 'upheld' or 'overturned'");
+    }
+    const flag = await this.moderationService.resolveAppeal(
+      parseInt(flagId),
+      req.user.id,
+      body.decision,
+      body.note ?? '',
+    );
+    return { success: true, data: flag, timestamp: new Date() };
+  }
+
   @Get('listing/:listingId')
-  @ApiOperation({ summary: 'Get flags for a listing' })
+  @ApiOperation({ summary: 'Get moderation status for a listing (no reporter details)' })
   async getListingFlags(@Param('listingId') listingId: string) {
     const flags = await this.moderationService.getListingFlags(
       parseInt(listingId),
     );
 
+    // Public view: no reporter ids, reasons or reviewer ids
     return {
       success: true,
-      data: flags,
+      data: flags.map((f) => ({
+        id: f.id,
+        status: f.status,
+        flaggedAt: f.flaggedAt,
+        appealStatus: f.appealStatus,
+        appealDecisionNote: f.appealDecisionNote,
+      })),
       timestamp: new Date(),
     };
+  }
+
+  @Get('listing/:listingId/owner')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Full flags for a listing (listing owner or staff)' })
+  async getOwnerListingFlags(@Param('listingId') listingId: string, @Request() req: any) {
+    const flags = await this.moderationService.getOwnerListingFlags(
+      parseInt(listingId),
+      req.user.id,
+      req.user.role === 'staff',
+    );
+    return { success: true, data: flags, timestamp: new Date() };
   }
 
   @Post('approve/:flagId')

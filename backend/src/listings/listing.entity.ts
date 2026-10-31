@@ -69,7 +69,7 @@ export class Listing {
 
   @Column({
     type: 'enum',
-    enum: ['draft', 'pending_review', 'active', 'on_hold', 'sold', 'expired'],
+    enum: ['draft', 'pending_review', 'active', 'paused', 'on_hold', 'sold', 'expired'],
     default: 'draft',
   })
   status: string;
@@ -103,6 +103,12 @@ export class Listing {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: 'integer', default: 0, name: 'refresh_count' })
+  refreshCount: number;
+
+  @Column({ type: 'jsonb', default: '{}', nullable: true })
+  attributes: Record<string, any>;
 
   getCoordinates() {
     return {

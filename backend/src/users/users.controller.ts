@@ -1,8 +1,9 @@
-import { Controller, Get, Put, Post, Param, Body, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, Post, Delete, Param, Body, Request, UseGuards, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { SellerStatsService } from './seller-stats.service';
 import { ReviewsService } from '../reviews/reviews.service';
+import { BlocksService } from '../blocks/blocks.service';
 import { User } from './user.entity';
 import { JwtGuard } from '../auth/jwt.guard';
 
@@ -13,6 +14,7 @@ export class UsersController {
     private usersService: UsersService,
     private sellerStatsService: SellerStatsService,
     private reviewsService: ReviewsService,
+    private blocksService: BlocksService,
   ) {}
 
   @Get('me')
@@ -107,6 +109,56 @@ export class UsersController {
     return {
       success: true,
       data: review,
+      timestamp: new Date(),
+    };
+  }
+
+  @Post(':id/block')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Block a user' })
+  async blockUser(
+    @Param('id') blockedUserId: string,
+    @Request() req: any,
+  ) {
+    const block = await this.blocksService.block(req.user.id, parseInt(blockedUserId));
+    return {
+      success: true,
+      data: block,
+      timestamp: new Date(),
+    };
+  }
+
+  @Delete(':id/block')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Unblock a user' })
+  async unblockUser(
+    @Param('id') blockedUserId: string,
+    @Request() req: any,
+  ) {
+    await this.blocksService.unblock(req.user.id, parseInt(blockedUserId));
+    return {
+      success: true,
+      timestamp: new Date(),
+    };
+  }
+
+  @Post(':id/verify-id')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Verify user ID (admin only)' })
+  async verifyID(
+    @Param('id') id: string,
+    @Request() req: any,
+  ) {
+    if (req.user.role !== 'admin') {
+      throw new ForbiddenException('Only admins can verify IDs');
+    }
+    const updated = await this.usersService.verifyID(parseInt(id));
+    return {
+      success: true,
+      data: updated,
       timestamp: new Date(),
     };
   }

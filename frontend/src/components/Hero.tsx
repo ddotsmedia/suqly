@@ -54,21 +54,6 @@ export default function Hero() {
             </div>
           </form>
 
-          <div className="grid grid-cols-3 gap-8 md:gap-12 max-w-2xl mx-auto mb-12">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-blue-600 mb-2">50K+</div>
-              <p className="text-gray-700 font-medium">Verified Listings</p>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-purple-600 mb-2">100% </div>
-              <p className="text-gray-700 font-medium">Buyer Protected</p>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-indigo-600 mb-2">24/7</div>
-              <p className="text-gray-700 font-medium">Support</p>
-            </div>
-          </div>
-
           <div className="flex flex-wrap justify-center gap-4 md:gap-6">
             <Link
               href="/listings"

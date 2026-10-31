@@ -1,6 +1,7 @@
 import { Controller, Get, Put, Param, Body, UseGuards, Request, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
+import { SellerStatsService } from './seller-stats.service';
 import { JwtGuard } from '../auth/jwt.guard';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,6 +12,7 @@ import { Listing } from '../listings/listing.entity';
 export class SellersController {
   constructor(
     private usersService: UsersService,
+    private sellerStatsService: SellerStatsService,
     @InjectRepository(Listing)
     private listingsRepository: Repository<Listing>,
   ) {}
@@ -18,10 +20,11 @@ export class SellersController {
   @Get(':sellerId')
   @ApiOperation({ summary: 'Get seller profile' })
   async getSellerProfile(@Param('sellerId') sellerId: string) {
-    const user = await this.usersService.findById(parseInt(sellerId));
-    const listings = await this.listingsRepository.find({
-      where: { userId: parseInt(sellerId), status: 'active' },
-    });
+    const [user, listings, stats] = await Promise.all([
+      this.usersService.findById(parseInt(sellerId)),
+      this.listingsRepository.find({ where: { userId: parseInt(sellerId), status: 'active' } }),
+      this.sellerStatsService.getSellerStats(parseInt(sellerId)),
+    ]);
 
     return {
       success: true,
@@ -31,7 +34,7 @@ export class SellersController {
         avatarUrl: user.avatarUrl,
         sellerBio: user.sellerBio,
         sellerScore: user.sellerScore,
-        responseRate: user.responseRate,
+        responseRate: stats.responseRate,
         avgResponseTime: user.avgResponseTimeMinutes,
         premiumTier: user.premiumTier,
         profileVerified: user.profileVerified,
