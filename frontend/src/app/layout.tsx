@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import Analytics from '@/components/Analytics';
+import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
 import { SITE_URL } from '@/lib/site';
 import './globals.css';
 
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
   },
   description: 'Find verified local listings with confidence. Browse, buy, and sell locally in UAE.',
   robots: 'index, follow',
+  appleWebApp: { capable: true, title: 'Suqly', statusBarStyle: 'default' },
   openGraph: {
     type: 'website',
     siteName: 'Suqly',
@@ -62,6 +64,7 @@ export default function RootLayout({
           {children}
         </div>
         <Analytics />
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
