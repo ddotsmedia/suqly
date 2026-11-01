@@ -9,6 +9,8 @@ import { SellerRatingBadge } from '@/components/SellerRatingBadge';
 import { PhoneVerifiedBadge } from '@/components/PhoneVerifiedBadge';
 import { recordRecentlyViewed } from '@/lib/recent';
 import { AppealForm } from '@/components/AppealForm';
+import PriceHistory from '@/components/PriceHistory';
+import SimilarListings from '@/components/SimilarListings';
 
 export default function ListingDetailContent() {
   const params = useParams();
@@ -125,8 +127,12 @@ export default function ListingDetailContent() {
             <h3 className="font-semibold mb-2">Description</h3>
             <p className="text-gray-700">{listing.description}</p>
           </div>
+
+          <PriceHistory listingId={listing.id} />
         </div>
       </div>
+
+      <SimilarListings listingId={listing.id} category={listing.category} emirate={listing.emirate} />
 
       {/* Reviews Section */}
       <div className="mt-12 border-t pt-8">
