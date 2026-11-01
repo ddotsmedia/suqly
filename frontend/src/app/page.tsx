@@ -4,6 +4,8 @@ import FeaturedListings from '@/components/FeaturedListings';
 import CategoriesGrid from '@/components/CategoriesGrid';
 import EmiratesGrid from '@/components/EmiratesGrid';
 import HomeTools from '@/components/HomeTools';
+import HomeBrowseByType from '@/components/HomeBrowseByType';
+import HomeRecentlyViewed from '@/components/HomeRecentlyViewed';
 import Footer from '@/components/Footer';
 
 export default function Home() {
@@ -13,6 +15,8 @@ export default function Home() {
       <Hero />
       <HomeTools />
       <CategoriesGrid />
+      <HomeBrowseByType />
+      <HomeRecentlyViewed />
       <EmiratesGrid />
       <FeaturedListings />
       <Footer />
