@@ -84,8 +84,6 @@ export default function Footer() {
             <div className="flex flex-wrap gap-2 justify-center">
               <span className="bg-gray-800 text-gray-300 px-3 py-1 rounded-full text-xs">🔒 SSL Encrypted</span>
               <span className="bg-gray-800 text-gray-300 px-3 py-1 rounded-full text-xs">✓ Verified Sellers</span>
-              <span className="bg-gray-800 text-gray-300 px-3 py-1 rounded-full text-xs">💎 Buyer Protection</span>
-              <span className="bg-gray-800 text-gray-300 px-3 py-1 rounded-full text-xs">24/7 Support</span>
             </div>
           </div>
         </div>
