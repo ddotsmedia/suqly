@@ -8,6 +8,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { apiCall } from '@/lib/api';
 import { connectMessagesSocket, currentUserId } from '@/lib/messagesSocket';
+import { findRiskyPhrases } from '@/lib/scamWarnings';
 
 const QUICK_REPLIES = [
   'Is this still available?',
@@ -119,6 +120,11 @@ export default function ConversationPage() {
                   <span>{new Date(m.createdAt).toLocaleString()}</span>
                 </div>
                 <p className="text-gray-800 whitespace-pre-wrap">{m.content}</p>
+                {!mine && findRiskyPhrases(m.content).length > 0 && (
+                  <p className="mt-2 text-xs text-amber-800">
+                    This message asks for payment or contact outside Suqly. Take care before paying anything.
+                  </p>
+                )}
               </li>
             );
           })}
@@ -142,6 +148,11 @@ export default function ConversationPage() {
               </button>
             ))}
           </div>
+          {findRiskyPhrases(draft).length > 0 && (
+            <p role="alert" className="mb-3 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-3">
+              Be careful: paying or moving this conversation outside Suqly is risky. Only pay after you have seen the item in person or through a trusted process.
+            </p>
+          )}
           <form onSubmit={send} className="flex gap-3">
             <textarea
               value={draft}
