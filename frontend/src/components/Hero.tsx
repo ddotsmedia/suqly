@@ -73,7 +73,6 @@ export default function Hero() {
           <div className="mt-12 flex justify-center gap-6 text-sm text-gray-600">
             <span className="flex items-center gap-1">✓ SSL Encrypted</span>
             <span className="flex items-center gap-1">✓ Verified Sellers</span>
-            <span className="flex items-center gap-1">✓ Money Back Guarantee</span>
           </div>
         </div>
       </div>
