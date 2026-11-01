@@ -15,9 +15,17 @@ export default function Header() {
             Suqly
           </Link>
 
-          <div className={`flex-1 max-w-xs relative transition-all duration-200 ${searchFocus ? 'max-w-md' : ''}`}>
+          <form
+            action="/listings"
+            method="get"
+            role="search"
+            className={`flex-1 max-w-xs relative transition-all duration-200 ${searchFocus ? 'max-w-md' : ''}`}
+          >
+            <label htmlFor="header-search" className="sr-only">Search listings</label>
             <input
-              type="text"
+              id="header-search"
+              name="q"
+              type="search"
               placeholder="Search listings, sellers..."
               onFocus={() => setSearchFocus(true)}
               onBlur={() => setSearchFocus(false)}
@@ -28,7 +36,7 @@ export default function Header() {
                 <p className="text-sm text-gray-600">Popular searches</p>
               </div>
             )}
-          </div>
+          </form>
 
           <nav className="hidden lg:flex gap-8 items-center">
             <div className="relative group">
