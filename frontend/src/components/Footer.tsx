@@ -25,6 +25,7 @@ export default function Footer() {
               <li><Link href="/listings" className="text-gray-400 hover:text-white transition">All Listings</Link></li>
               <li><Link href="/categories" className="text-gray-400 hover:text-white transition">Categories</Link></li>
               <li><Link href="/emirates" className="text-gray-400 hover:text-white transition">Emirates</Link></li>
+              <li><Link href="/compare" className="text-gray-400 hover:text-white transition">Compare Listings</Link></li>
               <li><Link href="/communities" className="text-gray-400 hover:text-white transition">Dubai Areas</Link></li>
               <li><Link href="/listings" className="text-gray-400 hover:text-white transition">Trending Now</Link></li>
               <li><Link href="/listings" className="text-gray-400 hover:text-white transition">Sale Items</Link></li>
