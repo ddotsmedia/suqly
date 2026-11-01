@@ -71,7 +71,7 @@ export default function Hero() {
           </div>
 
           <ul className="mt-10 flex flex-wrap justify-center gap-3" aria-label="Trust features">
-            {['SSL Encrypted', 'Verified Sellers', 'Money Back Guarantee'].map((label) => (
+            {['SSL Encrypted', 'Verified Sellers'].map((label) => (
               <li
                 key={label}
                 className="flex items-center gap-2 rounded-full bg-white/80 border border-gray-200 px-4 py-2 text-sm font-medium text-gray-800 shadow-soft"
