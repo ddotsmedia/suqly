@@ -10,6 +10,13 @@ import { apiCall } from '@/lib/api';
 import { connectMessagesSocket, currentUserId } from '@/lib/messagesSocket';
 import { findRiskyPhrases } from '@/lib/scamWarnings';
 
+const QUICK_REPLIES = [
+  'Is this still available?',
+  'Can you do a lower price?',
+  'Please send more photos.',
+  'Where can I see it?',
+];
+
 interface Message {
   id: number;
   content: string;
@@ -129,6 +136,18 @@ export default function ConversationPage() {
 
         {signedIn && !loading && listingId && (
           <>
+          <div className="mb-3 flex flex-wrap gap-2" aria-label="Quick replies">
+            {QUICK_REPLIES.map((text) => (
+              <button
+                key={text}
+                type="button"
+                onClick={() => setDraft(text)}
+                className="px-3 py-1 rounded-full border border-gray-300 text-sm text-gray-700 hover:border-blue-600"
+              >
+                {text}
+              </button>
+            ))}
+          </div>
           {findRiskyPhrases(draft).length > 0 && (
             <p role="alert" className="mb-3 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-3">
               Be careful: paying or moving this conversation outside Suqly is risky. Only pay after you have seen the item in person or through a trusted process.
