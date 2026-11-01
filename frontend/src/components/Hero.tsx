@@ -70,11 +70,17 @@ export default function Hero() {
             </Link>
           </div>
 
-          <div className="mt-12 flex justify-center gap-6 text-sm text-gray-600">
-            <span className="flex items-center gap-1">✓ SSL Encrypted</span>
-            <span className="flex items-center gap-1">✓ Verified Sellers</span>
-            <span className="flex items-center gap-1">✓ Money Back Guarantee</span>
-          </div>
+          <ul className="mt-10 flex flex-wrap justify-center gap-3" aria-label="Trust features">
+            {['SSL Encrypted', 'Verified Sellers', 'Money Back Guarantee'].map((label) => (
+              <li
+                key={label}
+                className="flex items-center gap-2 rounded-full bg-white/80 border border-gray-200 px-4 py-2 text-sm font-medium text-gray-800 shadow-soft"
+              >
+                <span aria-hidden="true" className="flex h-5 w-5 items-center justify-center rounded-full bg-green-100 text-green-700 text-xs font-bold">✓</span>
+                {label}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>
