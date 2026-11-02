@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { ReviewForm } from '@/components/ReviewForm';
 import { ReviewsList } from '@/components/ReviewsList';
+import { SellerResponseBadge } from '@/components/SellerResponseBadge';
 import { SellerRatingBadge } from '@/components/SellerRatingBadge';
 import { PhoneVerifiedBadge } from '@/components/PhoneVerifiedBadge';
 import { recordRecentlyViewed } from '@/lib/recent';
@@ -84,6 +85,9 @@ export default function ListingDetailContent() {
               <SellerRatingBadge sellerId={listing.userId} />
             </div>
             {listing.user?.phoneVerified && <PhoneVerifiedBadge />}
+            <div className="mt-2">
+              <SellerResponseBadge sellerId={listing.userId} />
+            </div>
           </div>
 
           <div className="text-2xl font-bold text-green-600 mb-4">
