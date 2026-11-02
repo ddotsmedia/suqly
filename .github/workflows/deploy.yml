@@ -278,6 +278,16 @@ jobs:
             fi
 
             echo "$IMAGE_TAG" > .deployed_tag
+            # Remove only Suqly images from older deploys; keep current and previous for rollback.
+            # Targeted removal on purpose: never docker system prune on this shared VPS.
+            docker image ls --format '{{.Repository}}:{{.Tag}}' \
+              | grep '^ghcr.io/ddotsmedia/suqly/' \
+              | while read -r img; do
+                  tag="${img##*:}"
+                  if [ "$tag" != "$IMAGE_TAG" ] && [ "$tag" != "$PREV_TAG" ]; then
+                    docker image rm "$img" >/dev/null 2>&1 || true
+                  fi
+                done || true
             $COMPOSE ps
             docker logout ghcr.io >/dev/null 2>&1 || true
             echo "✅ Deployment complete: $IMAGE_TAG"
