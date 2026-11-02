@@ -14,6 +14,38 @@ export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [signinMode, setSigninMode] = useState<'password' | 'otp'>('password');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [notice, setNotice] = useState('');
+
+  const handleEmailLogin = async () => {
+    if (!loginEmail || !loginPassword) {
+      setError('Email and password required');
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('auth_token', data.data.access_token);
+        window.location.href = '/seller/dashboard';
+      } else {
+        const body = await res.json().catch(() => null);
+        const message = body?.error ?? body?.message;
+        setError(typeof message === 'string' ? message : 'Invalid email or password');
+      }
+    } catch (err) {
+      setError('Error signing in');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleGetOtp = async () => {
     if (!phone) {
@@ -86,8 +118,11 @@ export default function AuthPage() {
       });
       if (res.ok) {
         setTab('signin');
+        setSigninMode('password');
+        setLoginEmail(email);
+        setLoginPassword('');
         setError('');
-        setPhone('');
+        setNotice('Account created. Check your email to verify it, then sign in below.');
         setPassword('');
       } else {
         const body = await res.json().catch(() => null);
@@ -124,8 +159,40 @@ export default function AuthPage() {
         </div>
 
         {error && <Alert variant="error" message={error} onClose={() => setError('')} />}
+        {notice && <Alert variant="success" message={notice} onClose={() => setNotice('')} />}
 
-        {tab === 'signin' && (
+        {tab === 'signin' && signinMode === 'password' && (
+          <div className="space-y-4">
+            <Input
+              label="Email"
+              type="email"
+              placeholder="john@example.com"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              required
+            />
+            <Input
+              label="Password"
+              type="password"
+              placeholder="••••••••"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              required
+            />
+            <Button onClick={handleEmailLogin} isLoading={loading} className="w-full">
+              Sign In
+            </Button>
+            <button
+              type="button"
+              onClick={() => setSigninMode('otp')}
+              className="w-full text-sm text-blue-600 hover:underline"
+            >
+              Sign in with phone OTP instead
+            </button>
+          </div>
+        )}
+
+        {tab === 'signin' && signinMode === 'otp' && (
           <div className="space-y-4">
             {!showOtp ? (
               <>
@@ -171,6 +238,16 @@ export default function AuthPage() {
                 </Button>
               </>
             )}
+            <button
+              type="button"
+              onClick={() => {
+                setSigninMode('password');
+                setShowOtp(false);
+              }}
+              className="w-full text-sm text-blue-600 hover:underline"
+            >
+              Sign in with email and password instead
+            </button>
           </div>
         )}
 

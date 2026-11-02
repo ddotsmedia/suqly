@@ -175,6 +175,39 @@ export class AuthService {
     return { success: true, message: 'If that email is registered and not yet verified, a new link has been sent.' };
   }
 
+  // Email + password sign-in for accounts created through register.
+  async loginWithPassword(
+    email: string,
+    password: string,
+  ): Promise<{ token: string; user: Partial<User> }> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    const valid =
+      !!user &&
+      user.passwordHash !== 'otp-auth' &&
+      (await bcrypt.compare(password, user.passwordHash));
+    if (!user || !valid) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const token = this.jwtService.sign({
+      sub: user.id,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+    });
+
+    return {
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        displayName: user.displayName,
+        role: user.role,
+      },
+    };
+  }
+
   async logout(token: string): Promise<{ success: boolean }> {
     // In-memory session cleanup would happen here
     // For S01, we just validate token and return success
