@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import ListingCards from '@/components/ListingCards';
 import { absoluteUrl, CATEGORIES, EMIRATES, fetchListingsFiltered, findCategory } from '@/lib/site';
 import { findSubcategory, subcategoriesFor } from '@/lib/subcategories';
+import { breadcrumbJsonLd, keywordsFor } from '@/lib/seo';
 
 export function generateStaticParams() {
   return CATEGORIES.map((c) => ({ slug: c.slug }));
@@ -22,6 +23,11 @@ export async function generateMetadata({
   return {
     title: `${category.name} listings in the UAE`,
     description: `${category.description} Browse ${category.name.toLowerCase()} listings across the UAE on Suqly.`,
+    keywords: keywordsFor(
+      `${category.name.toLowerCase()} UAE`,
+      `buy ${category.name.toLowerCase()} UAE`,
+      `${category.name.toLowerCase()} for sale UAE`,
+    ),
     alternates: { canonical: absoluteUrl(`/categories/${slug}`) },
   };
 }
@@ -47,6 +53,18 @@ export default async function CategoryPage({
 
   return (
     <main className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbJsonLd([
+              { name: 'Home', path: '/' },
+              { name: 'Categories', path: '/categories' },
+              { name: category.name, path: `/categories/${category.slug}` },
+            ]),
+          ),
+        }}
+      />
       <Header />
 
       <section className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-12 px-4">

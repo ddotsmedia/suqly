@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { absoluteUrl, API_URL, primaryImage } from '@/lib/site';
+import { absoluteUrl, API_URL, findCategory, findEmirate, primaryImage } from '@/lib/site';
+import { breadcrumbJsonLd, keywordsFor } from '@/lib/seo';
 import ListingDetailContent from './client';
 
 async function loadListing(id: string) {
@@ -21,17 +22,29 @@ export async function generateMetadata({
   const { id } = await params;
   const listing = await loadListing(id);
   if (!listing) {
-    return { title: 'Listing not found' };
+    return { title: 'Listing not found', robots: { index: false, follow: true } };
   }
 
-  const description = (listing.description || `${listing.title} on Suqly, UAE marketplace.`)
+  const categoryName = findCategory(listing.category)?.name ?? listing.category;
+  const emirateName = listing.emirate ? findEmirate(listing.emirate)?.name ?? listing.emirate : 'UAE';
+  const priceText =
+    listing.price !== null && listing.price !== undefined
+      ? ` Price AED ${Number(listing.price).toLocaleString('en-US')}.`
+      : '';
+  const fallback = `${listing.title}: ${categoryName} for sale in ${emirateName}, UAE.${priceText} Buy and sell locally on Suqly.`;
+  const description = (listing.description ? `${listing.description} ${priceText}`.trim() : fallback)
     .toString()
     .slice(0, 160);
   const image = primaryImage(listing);
 
   return {
-    title: listing.title,
+    title: `${listing.title} in ${emirateName}`,
     description,
+    keywords: keywordsFor(
+      listing.title,
+      `${categoryName} for sale ${emirateName}`,
+      `${categoryName} ${emirateName} UAE`,
+    ),
     alternates: { canonical: absoluteUrl(`/listings/${id}`) },
     openGraph: {
       title: listing.title,
@@ -70,12 +83,27 @@ export default async function ListingDetailPage({
         }
       : null;
 
+  const categoryName = listing ? findCategory(listing.category)?.name ?? listing.category : null;
+  const breadcrumbs = listing
+    ? breadcrumbJsonLd([
+        { name: 'Home', path: '/' },
+        ...(listing.category ? [{ name: categoryName!, path: `/categories/${listing.category}` }] : []),
+        { name: listing.title, path: `/listings/${id}` },
+      ])
+    : null;
+
   return (
     <>
       {productJsonLd && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        />
+      )}
+      {breadcrumbs && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
         />
       )}
       <ListingDetailContent />

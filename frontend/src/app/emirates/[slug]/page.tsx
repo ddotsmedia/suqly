@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ListingCards from '@/components/ListingCards';
 import { absoluteUrl, CATEGORIES, EMIRATES, fetchListingsFiltered, findEmirate } from '@/lib/site';
+import { breadcrumbJsonLd, keywordsFor } from '@/lib/seo';
 
 export function generateStaticParams() {
   return EMIRATES.map((e) => ({ slug: e.slug }));
@@ -19,8 +20,13 @@ export async function generateMetadata({
   const emirate = findEmirate(slug);
   if (!emirate) return { title: 'Emirate not found' };
   return {
-    title: `Listings in ${emirate.name}`,
-    description: `Browse listings in ${emirate.name}, UAE, on Suqly.`,
+    title: `Classifieds in ${emirate.name}, UAE`,
+    description: `Browse verified classifieds in ${emirate.name}, UAE: goods, property, cars, jobs, services and businesses. Buy and sell locally on Suqly.`,
+    keywords: keywordsFor(
+      `${emirate.name} classifieds`,
+      `buy and sell ${emirate.name}`,
+      `${emirate.name} local listings`,
+    ),
     alternates: { canonical: absoluteUrl(`/emirates/${slug}`) },
   };
 }
@@ -38,6 +44,18 @@ export default async function EmiratePage({
 
   return (
     <main className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbJsonLd([
+              { name: 'Home', path: '/' },
+              { name: 'Emirates', path: '/emirates' },
+              { name: emirate.name, path: `/emirates/${emirate.slug}` },
+            ]),
+          ),
+        }}
+      />
       <Header />
 
       <section className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-12 px-4">
