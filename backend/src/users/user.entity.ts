@@ -36,6 +36,12 @@ export class User {
   @Column({ type: 'boolean', default: false, name: 'email_verified' })
   emailVerified: boolean;
 
+  @Column({ type: 'varchar', length: 64, nullable: true, name: 'email_verification_token_hash' })
+  emailVerificationTokenHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true, name: 'email_verification_expires_at' })
+  emailVerificationExpiresAt: Date | null;
+
   @Column({ type: 'boolean', default: false, name: 'phone_verified' })
   phoneVerified: boolean;
 

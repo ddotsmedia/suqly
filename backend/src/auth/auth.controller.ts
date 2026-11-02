@@ -73,6 +73,24 @@ export class AuthController {
     return this.authService.verifyOTP(body.phone, body.code);
   }
 
+  @Post('verify-email')
+  @ApiOperation({ summary: 'Confirm an email address with the emailed link token' })
+  async verifyEmail(@Body() body: { token: string }) {
+    if (!body.token || !/^[a-f0-9]{64}$/.test(body.token)) {
+      throw new BadRequestException('A valid verification token is required');
+    }
+    return this.authService.verifyEmail(body.token);
+  }
+
+  @Post('resend-verification')
+  @ApiOperation({ summary: 'Send a new email verification link' })
+  async resendVerification(@Body() body: { email: string }) {
+    if (!body.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
+      throw new BadRequestException('A valid email is required');
+    }
+    return this.authService.resendVerification(body.email);
+  }
+
   @Post('logout')
   @ApiOperation({ summary: 'Logout user' })
   async logout(@Headers('authorization') authHeader: string) {
