@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
+import HomePhotoStrip from '@/components/HomePhotoStrip';
 import FeaturedListings from '@/components/FeaturedListings';
 import CategoriesGrid from '@/components/CategoriesGrid';
 import EmiratesGrid from '@/components/EmiratesGrid';
@@ -30,6 +31,7 @@ export default function Home() {
     <main className="min-h-screen bg-white">
       <Header />
       <Hero />
+      <HomePhotoStrip />
       <HomeTools />
       <CategoriesGrid />
       <HomeBrowseByType />
