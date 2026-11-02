@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import Analytics from '@/components/Analytics';
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
 import { SITE_URL } from '@/lib/site';
+import { keywordsFor } from '@/lib/seo';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
     template: '%s | Suqly',
   },
   description: 'Find verified local listings with confidence. Browse, buy, and sell locally in UAE.',
+  keywords: keywordsFor(),
   robots: 'index, follow',
   appleWebApp: { capable: true, title: 'Suqly', statusBarStyle: 'default' },
   openGraph: {
@@ -18,6 +20,11 @@ export const metadata: Metadata = {
     siteName: 'Suqly',
     locale: 'en_AE',
     url: SITE_URL,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Suqly - UAE Marketplace',
+    description: 'Find verified local listings with confidence. Browse, buy, and sell locally in UAE.',
   },
 };
 
