@@ -26,6 +26,19 @@ export default function ListingDetailContent() {
     setShareUrl(window.location.href);
   }, [id]);
 
+  // Count one view per listing per browser session, so refreshes don't inflate the count.
+  useEffect(() => {
+    if (!id) return;
+    const key = `viewed-listing-${id}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+    } catch {
+      // Storage can be blocked; still count the view.
+    }
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/listings/${id}/view`, { method: 'POST', keepalive: true }).catch(() => {});
+  }, [id]);
+
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
