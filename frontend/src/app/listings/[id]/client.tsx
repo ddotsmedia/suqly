@@ -71,6 +71,11 @@ export default function ListingDetailContent() {
 
         {/* Details */}
         <div>
+          {listing.status === 'sold' && (
+            <p role="status" className="mb-3 inline-block rounded-full bg-gray-900 px-3 py-1 text-sm font-semibold text-white">
+              Sold
+            </p>
+          )}
           <h1 className="text-3xl font-bold mb-2">{listing.title}</h1>
 
           {listing.userId && (

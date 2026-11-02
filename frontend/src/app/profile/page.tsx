@@ -203,6 +203,22 @@ export default function ProfilePage() {
                     <div key={l.id} className="border rounded p-4">
                       <Link href={`/listings/${l.id}`} className="font-semibold text-blue-600 hover:underline">{l.title}</Link>
                       <Link href={`/listings/${l.id}/edit`} className="ml-3 text-sm text-blue-600 hover:underline">Edit</Link>
+                      {(l.status === 'active' || l.status === 'paused') && (
+                        <button
+                          type="button"
+                          className="ml-3 text-sm text-gray-700 hover:underline"
+                          onClick={async () => {
+                            try {
+                              await apiCall(`/listings/${l.id}/mark-sold`, { method: 'PUT' });
+                              setListings((prev) => prev.map((x) => (x.id === l.id ? { ...x, status: 'sold' } : x)));
+                            } catch {
+                              alert('Could not mark this listing as sold. Please try again.');
+                            }
+                          }}
+                        >
+                          Mark as sold
+                        </button>
+                      )}
                       <p className="text-sm text-gray-600">
                         {l.status} · {new Date(l.createdAt).toLocaleDateString()}
                       </p>
