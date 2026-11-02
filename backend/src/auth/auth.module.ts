@@ -7,10 +7,12 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { SmsService } from './sms.service';
 import { User } from '../users/user.entity';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
+    NotificationsModule,
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'suqly-super-secret-key-dev-only',

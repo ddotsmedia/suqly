@@ -1,9 +1,10 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { SmsService } from './sms.service';
+import { EmailService } from '../notifications/email.service';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 
@@ -16,7 +17,33 @@ export class AuthService {
     private usersRepository: Repository<User>,
     private jwtService: JwtService,
     private smsService: SmsService,
+    private emailService: EmailService,
   ) {}
+
+  private static readonly VERIFY_TTL_MS = 24 * 60 * 60 * 1000;
+
+  private static hashToken(token: string): string {
+    return crypto.createHash('sha256').update(token).digest('hex');
+  }
+
+  private static verifyLink(token: string): string {
+    const base = (process.env.FRONTEND_URL || 'https://suqly.com').replace(/\/$/, '');
+    return `${base}/verify-email?token=${token}`;
+  }
+
+  // Creates a new one-time token, stores only its hash, and emails the link.
+  private async issueVerification(user: User): Promise<void> {
+    const token = crypto.randomBytes(32).toString('hex');
+    user.emailVerificationTokenHash = AuthService.hashToken(token);
+    user.emailVerificationExpiresAt = new Date(Date.now() + AuthService.VERIFY_TTL_MS);
+    await this.usersRepository.save(user);
+    try {
+      await this.emailService.sendVerification(user.email, user.displayName, AuthService.verifyLink(token));
+    } catch (error) {
+      // Registration must not fail if email is down; the user can request another link.
+      console.error('Verification email failed:', error);
+    }
+  }
 
   async sendOTP(phone: string): Promise<{ success: boolean; message: string }> {
     const otp = crypto.randomInt(100000, 999999).toString();
@@ -117,11 +144,35 @@ export class AuthService {
       }),
     );
 
+    await this.issueVerification(user);
+
     return {
       success: true,
-      message: 'Account created. Sign in with your phone number to verify it.',
+      message: 'Account created. Check your email to verify it.',
       user: { id: user.id, email: user.email, phone: user.phone, displayName: user.displayName },
     };
+  }
+
+  async verifyEmail(token: string): Promise<{ success: boolean; message: string }> {
+    const hash = AuthService.hashToken(token);
+    const user = await this.usersRepository.findOne({ where: { emailVerificationTokenHash: hash } });
+    if (!user || !user.emailVerificationExpiresAt || user.emailVerificationExpiresAt.getTime() < Date.now()) {
+      throw new BadRequestException('This verification link is invalid or has expired. Request a new one.');
+    }
+    user.emailVerified = true;
+    user.emailVerificationTokenHash = null;
+    user.emailVerificationExpiresAt = null;
+    await this.usersRepository.save(user);
+    return { success: true, message: 'Email verified. You can now sign in.' };
+  }
+
+  // Always returns the same response so the endpoint does not reveal which emails are registered.
+  async resendVerification(email: string): Promise<{ success: boolean; message: string }> {
+    const user = await this.usersRepository.findOne({ where: { email: email.trim().toLowerCase() } });
+    if (user && !user.emailVerified) {
+      await this.issueVerification(user);
+    }
+    return { success: true, message: 'If that email is registered and not yet verified, a new link has been sent.' };
   }
 
   async logout(token: string): Promise<{ success: boolean }> {

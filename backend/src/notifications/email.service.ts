@@ -30,6 +30,24 @@ export class EmailService {
     return true;
   }
 
+  async sendVerification(email: string, displayName: string, link: string): Promise<void> {
+    if (!this.ensureInitialized()) {
+      console.log(`[EMAIL] Verification email queued for ${email} (SendGrid not configured)`);
+      return;
+    }
+
+    try {
+      await sgMail.send({
+        to: email,
+        from: this.fromEmail,
+        subject: 'Verify your Suqly email',
+        html: `<p>Hi ${displayName},</p><p>Confirm your email to finish creating your Suqly account.</p><p><a href="${link}">Verify my email</a></p><p>This link expires in 24 hours. If you did not sign up, you can ignore this email.</p>`,
+      });
+    } catch (error) {
+      console.error('SendGrid error:', error);
+    }
+  }
+
   async sendWelcome(email: string, displayName: string): Promise<void> {
     if (!this.ensureInitialized()) {
       console.log(`[EMAIL] Welcome email to ${email}`);

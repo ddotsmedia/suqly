@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AuthService } from './auth.service';
 import { SmsService } from './sms.service';
+import { EmailService } from '../notifications/email.service';
 import { User } from '../users/user.entity';
 import { ConflictException } from '@nestjs/common';
 
@@ -33,6 +34,12 @@ describe('AuthService', () => {
           useValue: {
             sendOtp: jest.fn(),
             sendMessage: jest.fn(),
+          },
+        },
+        {
+          provide: EmailService,
+          useValue: {
+            sendVerification: jest.fn(),
           },
         },
       ],
