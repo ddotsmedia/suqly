@@ -35,7 +35,7 @@ export default function HomeTools() {
               href={tool.href}
               className="group p-6 rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all bg-white"
             >
-              <div className="text-4xl mb-4" aria-hidden="true">{tool.icon}</div>
+              <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-3xl mb-4" aria-hidden="true">{tool.icon}</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600">
                 {tool.title} <span aria-hidden="true">→</span>
               </h3>

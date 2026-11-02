@@ -27,7 +27,7 @@ export default function CategoriesGrid() {
               className="group relative overflow-hidden rounded-xl bg-white border border-gray-200 shadow-card hover:shadow-hover hover:border-gray-300 transition-all duration-300"
             >
               <div className="relative p-8">
-                <div className="text-6xl mb-4 group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-300">
+                <div className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-50 text-5xl mb-4 group-hover:scale-110 group-hover:-translate-y-1 transition-transform duration-300">
                   {ICONS[category.slug]}
                 </div>
 
