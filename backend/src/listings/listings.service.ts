@@ -284,6 +284,21 @@ export class ListingsService {
     return this.listingsRepository.save(listing);
   }
 
+  async markSold(id: number, userId: number): Promise<Listing> {
+    const listing = await this.findById(id);
+
+    if (listing.userId !== userId) {
+      throw new ForbiddenException('Cannot mark other user\'s listing as sold');
+    }
+
+    if (listing.status !== 'active' && listing.status !== 'paused') {
+      throw new BadRequestException('Only active or paused listings can be marked as sold');
+    }
+
+    listing.status = 'sold';
+    return this.listingsRepository.save(listing);
+  }
+
   async addImage(
     listingId: number,
     imageUrl: string,

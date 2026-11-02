@@ -187,6 +187,19 @@ export class ListingsController {
     };
   }
 
+  @Put(':id/mark-sold')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Mark own active or paused listing as sold (authenticated)' })
+  async markSold(@Param('id') id: string, @Request() req: any) {
+    const listing = await this.listingsService.markSold(parseInt(id), req.user.id);
+    return {
+      success: true,
+      data: listing,
+      timestamp: new Date(),
+    };
+  }
+
   @Put(':id/resume')
   @UseGuards(JwtGuard)
   @ApiBearerAuth()
