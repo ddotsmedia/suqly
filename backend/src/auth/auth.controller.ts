@@ -73,6 +73,18 @@ export class AuthController {
     return this.authService.verifyOTP(body.phone, body.code);
   }
 
+  @Post('login-email')
+  @ApiOperation({ summary: 'Sign in with email and password' })
+  @ApiResponse({ status: 200, description: 'Token issued successfully' })
+  async loginEmail(@Body() body: { email: string; password: string }) {
+    const email = (body.email ?? '').trim().toLowerCase();
+    if (!email || !body.password) {
+      throw new BadRequestException('Email and password are required');
+    }
+
+    return this.authService.loginWithPassword(email, body.password);
+  }
+
   @Post('verify-email')
   @ApiOperation({ summary: 'Confirm an email address with the emailed link token' })
   async verifyEmail(@Body() body: { token: string }) {
