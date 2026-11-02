@@ -21,6 +21,7 @@ interface MyListing {
   status: string;
   price?: number | string;
   createdAt: string;
+  viewCount?: number;
 }
 
 export default function ProfilePage() {
@@ -220,7 +221,7 @@ export default function ProfilePage() {
                         </button>
                       )}
                       <p className="text-sm text-gray-600">
-                        {l.status} · {new Date(l.createdAt).toLocaleDateString()}
+                        {l.status} · {new Date(l.createdAt).toLocaleDateString()} · {l.viewCount ?? 0} views
                       </p>
                       {l.price !== undefined && <p className="text-sm text-blue-600 mt-1">AED {Number(l.price).toLocaleString()}</p>}
                     </div>

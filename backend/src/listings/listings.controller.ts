@@ -97,6 +97,13 @@ export class ListingsController {
     return { success: true, data: listings, timestamp: new Date() };
   }
 
+  @Post(':id/view')
+  @ApiOperation({ summary: 'Record a view of a listing' })
+  async recordView(@Param('id') id: string) {
+    await this.listingsService.recordView(parseInt(id));
+    return { success: true, timestamp: new Date() };
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get listing by ID' })
   async getListing(@Param('id') id: string) {

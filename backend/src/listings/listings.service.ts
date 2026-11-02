@@ -284,6 +284,11 @@ export class ListingsService {
     return this.listingsRepository.save(listing);
   }
 
+  // Atomic increment so concurrent views are never lost.
+  async recordView(id: number): Promise<void> {
+    await this.listingsRepository.increment({ id }, 'viewCount', 1);
+  }
+
   async markSold(id: number, userId: number): Promise<Listing> {
     const listing = await this.findById(id);
 
