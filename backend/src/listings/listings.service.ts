@@ -173,7 +173,11 @@ export class ListingsService {
     }
 
     // Only seller-editable fields. Ownership, status, slug and dates are never taken from the request.
-    const editable = ['title', 'description', 'category', 'subcategory', 'emirate', 'community', 'publicLocation', 'price', 'currency'];
+    const editable = ['title', 'description', 'category', 'subcategory', 'emirate', 'community', 'publicLocation', 'price', 'currency', 'condition'];
+
+    if (updateData.condition !== undefined && !LISTING_CONDITIONS.includes(updateData.condition)) {
+      throw new BadRequestException(`Invalid condition: ${updateData.condition}`);
+    }
     const changes: Record<string, any> = {};
     for (const key of editable) {
       if (updateData[key] !== undefined) changes[key] = updateData[key];
