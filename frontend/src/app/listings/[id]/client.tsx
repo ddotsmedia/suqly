@@ -39,6 +39,24 @@ export default function ListingDetailContent() {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/listings/${id}/view`, { method: 'POST', keepalive: true }).catch(() => {});
   }, [id]);
 
+  const [canNativeShare, setCanNativeShare] = useState(false);
+  useEffect(() => {
+    setCanNativeShare(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
+  }, []);
+
+  const nativeShare = async () => {
+    if (!listing) return;
+    try {
+      await navigator.share({
+        title: listing.title,
+        text: `${listing.title} - AED ${listing.price}`,
+        url: shareUrl,
+      });
+    } catch {
+      // User cancelled the share sheet; nothing to do.
+    }
+  };
+
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
@@ -132,6 +150,15 @@ export default function ListingDetailContent() {
               >
                 {copied ? 'Link copied' : 'Copy link'}
               </button>
+              {canNativeShare && (
+                <button
+                  type="button"
+                  onClick={nativeShare}
+                  className="px-4 py-2 rounded-lg border text-sm"
+                >
+                  More share options
+                </button>
+              )}
             </div>
           )}
 
