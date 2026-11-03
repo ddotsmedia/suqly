@@ -15,6 +15,8 @@ import { ModerationService } from '../moderation/moderation.service';
 import * as crypto from 'crypto';
 import { isValidSubcategory } from './subcategories';
 
+export const LISTING_CONDITIONS = ['new', 'like-new', 'used', 'for-parts'];
+
 @Injectable()
 export class ListingsService {
   constructor(
@@ -37,6 +39,10 @@ export class ListingsService {
 
     if (createData.subcategory && !isValidSubcategory(createData.category, createData.subcategory)) {
       throw new BadRequestException(`Invalid subcategory for category ${createData.category}`);
+    }
+
+    if (createData.condition && !LISTING_CONDITIONS.includes(createData.condition)) {
+      throw new BadRequestException(`Invalid condition: ${createData.condition}`);
     }
 
     // Generate slug
