@@ -38,11 +38,13 @@ export async function apiCall(
 export async function getListings(
   page = 1,
   limit = 20,
-  filters: { category?: string; emirate?: string } = {},
+  filters: { category?: string; emirate?: string; priceMin?: string; priceMax?: string } = {},
 ) {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (filters.category) params.set('category', filters.category);
   if (filters.emirate) params.set('emirate', filters.emirate);
+  if (filters.priceMin) params.set('priceMin', filters.priceMin);
+  if (filters.priceMax) params.set('priceMax', filters.priceMax);
   return apiCall(`/listings?${params.toString()}`);
 }
 

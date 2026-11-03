@@ -61,6 +61,8 @@ function ListingsContent() {
     const e = searchParams.get('emirate') ?? '';
     return EMIRATES.some((x) => x.slug === e) ? e : 'all';
   });
+  const [priceMin, setPriceMin] = useState(() => searchParams.get('priceMin') ?? '');
+  const [priceMax, setPriceMax] = useState(() => searchParams.get('priceMax') ?? '');
   const [sort, setSort] = useState<'newest' | 'price-asc' | 'price-desc'>('newest');
   const [recent, setRecent] = useState<RecentListing[]>([]);
 
@@ -69,15 +71,21 @@ function ListingsContent() {
   }, []);
 
   // Keep the filters in the URL so a filtered view can be shared or bookmarked.
-  function updateFilter(next: { category?: string; emirate?: string }) {
+  function updateFilter(next: { category?: string; emirate?: string; priceMin?: string; priceMax?: string }) {
     const c = next.category ?? category;
     const e = next.emirate ?? emirate;
+    const min = next.priceMin ?? priceMin;
+    const max = next.priceMax ?? priceMax;
     if (next.category !== undefined) setCategory(c);
     if (next.emirate !== undefined) setEmirate(e);
+    if (next.priceMin !== undefined) setPriceMin(min);
+    if (next.priceMax !== undefined) setPriceMax(max);
     setPage(1);
     const params = new URLSearchParams();
     if (c !== 'all') params.set('category', c);
     if (e !== 'all') params.set('emirate', e);
+    if (min) params.set('priceMin', min);
+    if (max) params.set('priceMax', max);
     const qs = params.toString();
     router.replace(qs ? `/listings?${qs}` : '/listings', { scroll: false });
   }
@@ -89,6 +97,8 @@ function ListingsContent() {
     getListings(page, PAGE_SIZE, {
       category: category === 'all' ? undefined : category,
       emirate: emirate === 'all' ? undefined : emirate,
+      priceMin: priceMin || undefined,
+      priceMax: priceMax || undefined,
     })
       .then((res) => {
         if (cancelled) return;
@@ -105,7 +115,7 @@ function ListingsContent() {
     return () => {
       cancelled = true;
     };
-  }, [page, attempt, category, emirate]);
+  }, [page, attempt, category, emirate, priceMin, priceMax]);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -189,6 +199,40 @@ function ListingsContent() {
             <option value="price-asc">Price: low to high</option>
             <option value="price-desc">Price: high to low</option>
           </select>
+        </div>
+
+        <div className="flex flex-wrap items-end gap-3 mb-8">
+          <label className="flex flex-col text-sm text-gray-700">
+            Min price (AED)
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={priceMin}
+              onChange={(e) => updateFilter({ priceMin: e.target.value })}
+              className="mt-1 w-36 px-3 py-2 rounded-lg border border-gray-300"
+            />
+          </label>
+          <label className="flex flex-col text-sm text-gray-700">
+            Max price (AED)
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={priceMax}
+              onChange={(e) => updateFilter({ priceMax: e.target.value })}
+              className="mt-1 w-36 px-3 py-2 rounded-lg border border-gray-300"
+            />
+          </label>
+          {(priceMin || priceMax) && (
+            <button
+              type="button"
+              onClick={() => updateFilter({ priceMin: '', priceMax: '' })}
+              className="px-3 py-2 text-sm text-blue-600 hover:underline"
+            >
+              Clear price
+            </button>
+          )}
         </div>
 
         {loading && <p className="text-gray-600 py-12 text-center">Loading listings…</p>}
