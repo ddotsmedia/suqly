@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, Query, UseGuards, Request, RawBodyRequest, Req, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Query, UseGuards, Request, RawBodyRequest, Req, BadRequestException, NotFoundException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { StripeService } from './stripe.service';
 import { JwtGuard } from '../auth/jwt.guard';
@@ -9,6 +9,13 @@ import Stripe from 'stripe';
 export class PaymentsController {
   constructor(private stripeService: StripeService) {}
 
+  // Online payments are off until the payment gateway is approved. Off by default.
+  private assertPaymentsEnabled(): void {
+    if (process.env.PAYMENTS_ENABLED !== 'true') {
+      throw new NotFoundException();
+    }
+  }
+
   @Post('checkout')
   @UseGuards(JwtGuard)
   @ApiBearerAuth()
@@ -17,6 +24,7 @@ export class PaymentsController {
     @Body() body: { listingId: number; amount: number },
     @Request() req: any,
   ) {
+    this.assertPaymentsEnabled();
     const { clientSecret, sessionId } = await this.stripeService.createCheckoutSession(
       req.user.id,
       body.listingId,
@@ -36,6 +44,7 @@ export class PaymentsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Confirm payment completion' })
   async confirmPayment(@Body() body: { sessionId: string }) {
+    this.assertPaymentsEnabled();
     const transaction = await this.stripeService.confirmPayment(body.sessionId);
     return {
       success: true,
@@ -77,6 +86,7 @@ export class PaymentsController {
   @Post('webhook')
   @ApiOperation({ summary: 'Stripe webhook' })
   async handleWebhook(@Req() req: RawBodyRequest<any>) {
+    this.assertPaymentsEnabled();
     const sig = req.headers['stripe-signature'];
     const secret = process.env.STRIPE_WEBHOOK_SECRET;
 
