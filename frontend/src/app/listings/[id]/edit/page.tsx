@@ -21,6 +21,7 @@ export default function EditListingPage() {
   const [emirate, setEmirate] = useState<string>(EMIRATES[0].slug);
   const [community, setCommunity] = useState('');
   const [price, setPrice] = useState('');
+  const [condition, setCondition] = useState<string>('used');
   const [status, setStatus] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -42,6 +43,7 @@ export default function EditListingPage() {
         setEmirate(l.emirate ?? EMIRATES[0].slug);
         setCommunity(l.community ?? '');
         setPrice(l.price != null ? String(l.price) : '');
+        setCondition(l.condition && l.condition !== 'not_specified' ? l.condition : 'used');
         setStatus(l.status ?? '');
       })
       .catch(() => setError('Could not load this listing.'))
@@ -64,6 +66,7 @@ export default function EditListingPage() {
           emirate,
           community: community || undefined,
           price: Number(price),
+          condition,
         }),
       });
       setMessage('Changes saved.');
@@ -135,6 +138,16 @@ export default function EditListingPage() {
                   className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" />
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <label className="block">
+                  <span className="text-sm font-semibold text-gray-700">Condition</span>
+                  <select value={condition} onChange={(e) => setCondition(e.target.value)}
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2">
+                    <option value="new">New</option>
+                    <option value="like-new">Like new</option>
+                    <option value="used">Used</option>
+                    <option value="for-parts">For parts</option>
+                  </select>
+                </label>
                 <label className="block">
                   <span className="text-sm font-semibold text-gray-700">Category</span>
                   <select value={category} onChange={(e) => { setCategory(e.target.value); setSubcategory(''); }}
