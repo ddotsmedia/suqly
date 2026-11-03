@@ -22,6 +22,7 @@ export default function NewListingPage() {
   const [emirate, setEmirate] = useState<string>(EMIRATES[0].slug);
   const [community, setCommunity] = useState('');
   const [price, setPrice] = useState('');
+  const [condition, setCondition] = useState<string>('used');
   const [photos, setPhotos] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -66,6 +67,7 @@ export default function NewListingPage() {
           emirate,
           community: community || undefined,
           price: Number(price),
+          condition,
         }),
       });
       listingId = created.data.id;
@@ -131,6 +133,16 @@ export default function NewListingPage() {
           </label>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <label className="block">
+              <span className="text-sm font-semibold text-gray-700">Condition</span>
+              <select value={condition} onChange={(e) => setCondition(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2">
+                <option value="new">New</option>
+                <option value="like-new">Like new</option>
+                <option value="used">Used</option>
+                <option value="for-parts">For parts</option>
+              </select>
+            </label>
             <label className="block">
               <span className="text-sm font-semibold text-gray-700">Category</span>
               <select value={category} onChange={(e) => { setCategory(e.target.value); setSubcategory(''); }}

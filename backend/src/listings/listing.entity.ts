@@ -113,6 +113,9 @@ export class Listing {
   @Column({ type: 'jsonb', default: '{}', nullable: true })
   attributes: Record<string, any>;
 
+  @Column({ type: 'varchar', length: 50, default: 'not_specified', nullable: true })
+  condition: string;
+
   getCoordinates() {
     return {
       lat: Number(this.latitude),

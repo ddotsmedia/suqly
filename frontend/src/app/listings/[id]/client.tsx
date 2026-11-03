@@ -13,6 +13,13 @@ import { AppealForm } from '@/components/AppealForm';
 import PriceHistory from '@/components/PriceHistory';
 import SimilarListings from '@/components/SimilarListings';
 
+const CONDITION_LABELS: Record<string, string> = {
+  new: 'New',
+  'like-new': 'Like new',
+  used: 'Used',
+  'for-parts': 'For parts',
+};
+
 export default function ListingDetailContent() {
   const params = useParams();
   const id = params?.id as string;
@@ -165,7 +172,7 @@ export default function ListingDetailContent() {
           <div className="space-y-2 mb-6">
             <p><strong>Category:</strong> {listing.category}</p>
             <p><strong>Emirate:</strong> {listing.emirate}</p>
-            <p><strong>Condition:</strong> {listing.condition || 'Not specified'}</p>
+            <p><strong>Condition:</strong> {CONDITION_LABELS[listing.condition] || 'Not specified'}</p>
             <p><strong>Posted:</strong> {new Date(listing.createdAt).toLocaleDateString()}</p>
             {listing.refreshCount > 0 && (
               <p><strong>Bumped:</strong> {listing.refreshCount} {listing.refreshCount === 1 ? 'time' : 'times'}</p>
